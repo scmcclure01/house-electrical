@@ -76,5 +76,9 @@ Rules (`validate()`):
 After each phase: update this file and the sample, give the user a browser test script, commit and push.
 
 ## Repo
+GitHub: https://github.com/scmcclure01/house-electrical (public, `main` branch).
+Live site (GitHub Pages, deploys from `main` root ~1 min after push): https://scmcclure01.github.io/house-electrical/
+`gh` is installed at `/usr/local/bin/gh` and authenticated.
 Local clone lives at `~/Projects/house-electrical` (outside Google Drive on purpose — Drive sync breaks git).
-The user's real house file is separate, in Google Drive.
+The user's real house file is separate, in Google Drive:
+`~/Library/CloudStorage/GoogleDrive-scmcclure01@gmail.com/My Drive/Claude/Personal/House Sketch and Electrical Panel/my-house.json`

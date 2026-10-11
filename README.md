@@ -7,7 +7,7 @@ panel breakers, switch links, and printable plans, circuit tables, panel schedul
 - Your house is a single `.json` file you keep wherever you like (e.g. a Google Drive folder). The app opens and saves it in place.
 
 ## Use
-Open the GitHub Pages site, then **File → Open…** your house file, or **New house** and **Save as…**.
+Open https://scmcclure01.github.io/house-electrical/ in Chrome or Edge, then **File → Open…** your house file, or **New house** and **Save as…**.
 Try **File → Load sample house** to explore.
 
 ## Develop
