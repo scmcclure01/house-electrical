@@ -12,6 +12,6 @@ Try **File → Load sample house** to explore.
 
 ## Develop
 ```bash
-python3 -m http.server 8000
+python3 serve.py
 ```
 Open http://localhost:8000 (app) and http://localhost:8000/tests/ (tests). See `CLAUDE.md` for the data model and conventions.

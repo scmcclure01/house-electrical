@@ -5,15 +5,11 @@ import * as store from './store.js';
 import * as fileio from './fileio.js';
 import { view, setView, onViewChange } from './ui/viewstate.js';
 import { renderInspector } from './ui/inspector.js';
+import { status } from './ui/status.js';
+import './tools/index.js';
+import './ui/toolrail.js';
 
 const $ = sel => document.querySelector(sel);
-
-// ---------- status ----------
-export function status(msg, isError = false) {
-  const s = $('#status-msg');
-  s.textContent = msg;
-  s.classList.toggle('error', isError);
-}
 
 // ---------- top bar rendering ----------
 function renderTopbar() {
@@ -46,7 +42,7 @@ function renderAll() {
   document.title = store.getDoc() ? `${store.getDoc().meta.name || 'House'} — House Electrical` : 'House Electrical';
 }
 
-store.subscribe(renderAll);
+store.subscribe(reason => { if (reason !== 'preview') renderAll(); });
 onViewChange(patch => {
   if ('mode' in patch) {
     document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === `view-${view.mode}`));

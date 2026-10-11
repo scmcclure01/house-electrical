@@ -104,3 +104,31 @@ export function validate(doc) {
   });
   return errs;
 }
+
+// ---------- lookup & cascading delete ----------
+const COLLECTIONS = { wall: 'walls', opening: 'openings', area: 'areas', device: 'devices', breaker: 'breakers', group: 'switchGroups' };
+
+// Returns {kind, obj} for any id in the plan collections, or null.
+export function findById(doc, objId) {
+  for (const [kind, key] of Object.entries(COLLECTIONS)) {
+    const obj = doc[key].find(o => o.id === objId);
+    if (obj) return { kind, obj };
+  }
+  return null;
+}
+
+// Delete objects and everything that depends on them.
+export function deleteIds(doc, ids) {
+  const del = new Set(ids);
+  for (const o of doc.openings) if (del.has(o.wallId)) del.add(o.id);
+  for (const key of Object.values(COLLECTIONS)) doc[key] = doc[key].filter(o => !del.has(o.id));
+  for (const d of doc.devices) if (d.breakerId && del.has(d.breakerId)) d.breakerId = null;
+  for (const p of doc.panels) if (p.fedFromBreakerId && del.has(p.fedFromBreakerId)) p.fedFromBreakerId = null;
+  for (const g of doc.switchGroups) {
+    g.switchIds = g.switchIds.filter(x => !del.has(x));
+    g.loadIds = g.loadIds.filter(x => !del.has(x));
+  }
+  doc.switchGroups = doc.switchGroups.filter(g => g.switchIds.length > 0);
+}
+
+export function wallLength(w) { return Math.hypot(w.b.x - w.a.x, w.b.y - w.a.y); }

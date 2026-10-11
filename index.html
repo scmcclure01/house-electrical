@@ -43,6 +43,13 @@
       <aside id="tool-rail" aria-label="Tools"></aside>
       <div id="canvas-wrap">
         <svg id="plan" xmlns="http://www.w3.org/2000/svg"></svg>
+        <div id="tool-options" hidden></div>
+        <div id="canvas-controls">
+          <label class="toggle"><input type="checkbox" id="show-dims"> Dimensions</label>
+          <button id="zoom-out" title="Zoom out (−)">−</button>
+          <button id="zoom-in" title="Zoom in (+)">+</button>
+          <button id="zoom-fit" title="Fit house (F)">Fit</button>
+        </div>
         <div id="empty-state">
           <h2>No house open</h2>
           <p>Use <b>File → Open…</b> to open your house file, <b>New house</b> to start one, or <b>Load sample house</b> to try things out.</p>

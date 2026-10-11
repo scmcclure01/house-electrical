@@ -5,8 +5,12 @@ Hosted on GitHub Pages; the house data is one JSON file (kept in Google Drive) o
 with the File System Access API (Chrome/Edge only).
 
 ## Run & test
-- `python3 -m http.server 8000` from the repo root, then http://localhost:8000 (ES modules and the
-  File System Access API don't work from `file://`). `.claude/launch.json` has the same server for preview.
+- `python3 serve.py` from the repo root, then http://localhost:8000 (ES modules and the File System Access
+  API don't work from `file://`). It disables caching — with plain `http.server` Chrome keeps stale ES modules.
+  `.claude/launch.json` runs the same server for preview. GitHub Pages caches ~10 min: tell the user to
+  hard-reload (⌘⇧R) after a deploy.
+- Browser automation note: the test harness's "type" action doesn't fire keydown events; send key presses
+  (e.g. `key "1 2 ' 6 Return"`) to exercise the wall tool's typed lengths.
 - Unit tests: http://localhost:8000/tests/ — in-browser assertions, no framework. Add a `test(...)` there
   for any new pure logic (geometry, slot math, migration, validation).
 - File → **Load sample house** loads `samples/sample-house.json` without linking a file handle.
@@ -25,6 +29,11 @@ with the File System Access API (Chrome/Edge only).
 - Ids: `id(prefix)` from `model.js`. Prefixes: `w_` wall, `o_` opening, `a_` area, `d_` device, `b_` breaker,
   `g_` switch group. Floors are `F1`, `F2`; panels `p_main`, `p_sub`.
 - Derived data (room a device is in, device counts per circuit) is computed, never stored.
+- Drags use `store.beginGesture / updateGesture / endGesture` so a whole drag is one undo step.
+- Tools are plain objects (see header of `js/tools/index.js`); the renderer calls `tool.overlay(h)` for
+  previews. Full SVG re-render on every change is intentional (small documents, simple code).
+- Shared wall corners: moving a wall end also moves other wall ends at the same point (same floor).
+- Opening `offsetIn` is measured from wall end `a`; the UI marks that end with an "A".
 - Code style: 2-space indent, single quotes, semicolons, small modules, comments only where intent isn't obvious.
 
 ## Layout
@@ -35,8 +44,15 @@ js/model.js         SCHEMA_VERSION, newHouse, migrate, validate, slot math, id()
 js/store.js         doc state, commit/undo/redo, dirty flag, subscribe
 js/fileio.js        open / save in place / save as / reopen last (handle in IndexedDB)
 js/units.js         ft-in parse/format
-js/ui/viewstate.js  UI-only state       js/ui/inspector.js  properties panel
-js/render/, js/tools/, js/print/        (added in later phases)
+js/geometry.js      points, snapping, projection, polygon area / label point
+js/ui/viewstate.js  UI-only state (floor, selection, tool, display toggles)
+js/ui/inspector.js  properties panel     js/ui/toolrail.js  tool buttons, tool options, zoom controls
+js/ui/status.js     status bar
+js/render/plan.js   SVG plan renderer + camera (viewBox pan/zoom), openingGeom()
+js/tools/index.js   tool registry, pointer/wheel/keyboard routing, Delete/Esc/F shortcuts
+js/tools/snap.js    corner → Shift 45° → grid snapping
+js/tools/select.js, wall.js, area.js, opening.js   individual tools
+js/print/           (Phase 5)
 samples/sample-house.json   tests/index.html
 ```
 
@@ -67,7 +83,7 @@ Rules (`validate()`):
 
 ## Development phases
 0. Scaffold, file I/O, undo/redo ✅
-1. Walls, areas (rooms/garage/attic/exterior/stair), openings, pan/zoom, select/move/delete
+1. Walls, areas (rooms/garage/attic/exterior/stair), openings, pan/zoom, select/move/delete ✅
 2. Devices with standard plan symbols
 3. Panels view, breakers, circuit assignment, colors, verified styling, unassigned view
 4. Switch → load links, 3-way

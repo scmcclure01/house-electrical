@@ -46,6 +46,40 @@ export function commit(label, mutator) {
   return true;
 }
 
+// Gestures (e.g. dragging): live in-place edits that become ONE undo step when finished.
+let gesture = null; // {label, before}
+
+export function beginGesture(label) {
+  if (state.readOnly) return false;
+  gesture = { label, before: JSON.stringify(state.doc) };
+  return true;
+}
+
+export function updateGesture(mutator) {
+  if (!gesture) return;
+  mutator(state.doc);
+  emit('preview');
+}
+
+export function endGesture() {
+  if (!gesture) return;
+  const { label, before } = gesture;
+  gesture = null;
+  if (JSON.stringify(state.doc) === before) return;
+  state.undo.push({ label, json: before });
+  if (state.undo.length > UNDO_LIMIT) state.undo.shift();
+  state.redo = [];
+  state.dirty = true;
+  emit('change');
+}
+
+export function cancelGesture() {
+  if (!gesture) return;
+  state.doc = JSON.parse(gesture.before);
+  gesture = null;
+  emit('change');
+}
+
 export function undo() {
   const step = state.undo.pop();
   if (!step) return;

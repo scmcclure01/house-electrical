@@ -16,6 +16,8 @@
     import { parseLength, formatLength } from '../js/units.js';
     import { newHouse, migrate, validate, slotsOf, slotRow, slotSide, SCHEMA_VERSION } from '../js/model.js';
     import * as store from '../js/store.js';
+    import { projectOnSegment, pointInPolygon, polygonArea, labelPoint, snapAngle, snapToGrid } from '../js/geometry.js';
+    import { deleteIds, findById } from '../js/model.js';
 
     const out = document.getElementById('out');
     let pass = 0, fail = 0;
@@ -77,6 +79,53 @@
       store.load(newHouse('A'));
       eq(store.commit('noop', d => { d.meta.name = 'A'; }), false);
       eq(store.canUndo(), false);
+    });
+
+    // geometry
+    const L = [{x:0,y:0},{x:216,y:0},{x:216,y:336},{x:96,y:336},{x:96,y:216},{x:0,y:216}];
+    test('project onto segment', () => { const r = projectOnSegment({x:50,y:10},{x:0,y:0},{x:100,y:0}); eq([r.along, r.d], [50, 10]); });
+    test('project clamps to ends', () => eq(projectOnSegment({x:-20,y:0},{x:0,y:0},{x:100,y:0}).t, 0));
+    test('point in L-shaped room', () => { eq(pointInPolygon({x:150,y:300}, L), true); eq(pointInPolygon({x:50,y:300}, L), false); });
+    test('polygon area (sq in)', () => eq(Math.abs(polygonArea([{x:0,y:0},{x:120,y:0},{x:120,y:144},{x:0,y:144}])), 17280));
+    test('label point inside L shape', () => eq(pointInPolygon(labelPoint(L), L), true));
+    test('label point inside U shape', () => {
+      const U = [{x:0,y:0},{x:30,y:0},{x:30,y:100},{x:70,y:100},{x:70,y:0},{x:100,y:0},{x:100,y:130},{x:0,y:130}];
+      eq(pointInPolygon(labelPoint(U), U), true);
+    });
+    test('snap to 6" grid', () => eq(snapToGrid({x:14,y:-4}, 6), {x:12,y:-6}));
+    test('shift locks to 45°', () => { const p = snapAngle({x:0,y:0}, {x:100,y:8}, 6); eq(p, {x:102,y:0}); });
+
+    // cascading delete
+    test('deleting a wall deletes its openings', () => {
+      const d = newHouse();
+      d.walls.push({ id: 'w1', floorId: 'F1', kind: 'exterior', a: {x:0,y:0}, b: {x:120,y:0}, thicknessIn: 6 });
+      d.openings.push({ id: 'o1', wallId: 'w1', kind: 'door', offsetIn: 12, widthIn: 32, hinge: 'a', swing: 'left' });
+      deleteIds(d, ['w1']);
+      eq([d.walls.length, d.openings.length], [0, 0]);
+    });
+    test('deleting a breaker unassigns devices', () => {
+      const d = newHouse();
+      d.breakers.push({ id: 'b1', panelId: 'p_main', position: 1, poles: 1, amps: 15 });
+      d.devices.push({ id: 'd1', floorId: 'F1', type: 'outlet', x: 0, y: 0, breakerId: 'b1' });
+      deleteIds(d, ['b1']);
+      eq(d.devices[0].breakerId, null);
+    });
+    test('findById finds an area', () => {
+      const d = newHouse();
+      d.areas.push({ id: 'a1', floorId: 'F1', name: 'X', kind: 'room', points: L });
+      eq(findById(d, 'a1').kind, 'area');
+    });
+
+    // gestures
+    test('gesture becomes one undo step', () => {
+      store.load(newHouse('A'));
+      store.beginGesture('drag');
+      store.updateGesture(d => { d.meta.name = 'B'; });
+      store.updateGesture(d => { d.meta.name = 'C'; });
+      store.endGesture();
+      eq(store.getDoc().meta.name, 'C');
+      store.undo();
+      eq([store.getDoc().meta.name, store.canUndo()], ['A', false]);
     });
 
     // sample file

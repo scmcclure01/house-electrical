@@ -7,6 +7,9 @@ export const view = {
   floorId: 'F1',
   ghost: false,       // show the other floor faintly underneath
   selection: [],      // ids of selected objects
+  tool: 'select',     // active plan tool (see js/tools/index.js)
+  areaKind: 'room',   // kind used by the Area tool
+  showDims: false,    // label every wall with its length
 };
 
 export function setView(patch) {

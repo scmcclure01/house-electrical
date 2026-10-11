@@ -88,3 +88,90 @@ kbd { font: 11px var(--font); color: var(--muted); margin-left: auto; }
   background: var(--panel); border-top: 1px solid var(--line); color: var(--muted); font-size: 12px;
 }
 #status-msg.error { color: var(--danger); }
+
+/* ---- tool rail ---- */
+.rail-btn { width: 40px; height: 36px; padding: 0; display: flex; align-items: center; justify-content: center; color: var(--ink); }
+.rail-sep { border: 0; border-top: 1px solid var(--line); margin: 4px 2px; }
+#tool-options {
+  position: absolute; top: 10px; left: 10px; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 6px; padding: 6px 10px; box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+#tool-options label { display: flex; align-items: center; gap: 6px; color: var(--muted); }
+#tool-options select { width: auto; }
+#canvas-controls {
+  position: absolute; right: 10px; bottom: 10px; display: flex; gap: 4px; align-items: center;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 4px 6px;
+}
+#canvas-controls button { min-width: 30px; }
+
+/* ---- inspector extras ---- */
+.btn-row { display: flex; gap: 6px; margin-bottom: 10px; }
+#inspector > button { margin: 0 6px 6px 0; }
+button.danger { color: var(--danger); }
+button.danger:hover:not(:disabled) { border-color: var(--danger); }
+.tip { margin-top: 18px; }
+
+/* ---- plan drawing ---- */
+#plan { touch-action: none; user-select: none; }
+#plan.tool-select { cursor: default; }
+#plan:not(.tool-select) { cursor: crosshair; }
+#plan.can-pan { cursor: grab; }
+#plan.panning { cursor: grabbing; }
+#plan * { vector-effect: non-scaling-stroke; }
+#plan .wall, #plan .hit, #plan .opening-gap, #plan .preview-wall, #plan .preview-opening { vector-effect: none; }
+
+.grid-minor { stroke: #eeeeea; stroke-width: 1; }
+.grid-foot { stroke: #e2e2dc; stroke-width: 1; }
+.grid-major { stroke: #cfcfc8; stroke-width: 1; }
+.grid-axis { stroke: #b8c4e0; stroke-width: 1.5; }
+
+.area { stroke: #b5b0a5; stroke-width: 1; }
+.area-room { fill: #fbf6ec; }
+.area-garage { fill: #ecebe8; }
+.area-attic { fill: url(#attic-hatch); stroke-dasharray: 6 3; }
+.area-exterior { fill: #eef5e9; stroke: #9fbf8f; stroke-dasharray: 5 4; }
+.area-stair { fill: url(#stair-hatch); stroke: #8a8578; }
+.attic-line { stroke: #e3d6bf; stroke-width: 2; }
+.hatch-line { stroke: #c9c3b6; stroke-width: 1.2; }
+.tool-select .area:hover { fill-opacity: .7; stroke: var(--accent); }
+.area-label { text-anchor: middle; font-weight: 600; fill: #55524b; pointer-events: none; }
+.area-sqft { font-weight: 400; fill: #8d897f; font-size: .85em; }
+.stair-arrow { stroke: #55524b; stroke-width: 1.5; pointer-events: none; }
+.stair-head { fill: #55524b; pointer-events: none; }
+
+.wall { stroke-linecap: square; }
+.wall-exterior { stroke: #2b2b2b; }
+.wall-interior { stroke: #6f6f6f; }
+.tool-select .wall:hover { stroke: #4a72d9; }
+
+.opening-gap { stroke: #fbfbfa; stroke-linecap: butt; }
+.opening-jamb { stroke: #2b2b2b; stroke-width: 1.5; }
+.window-line { stroke: #3a6fb0; stroke-width: 1; }
+.door-leaf { stroke: #2b2b2b; stroke-width: 1.5; }
+.door-arc { fill: none; stroke: #8a8a8a; stroke-width: 1; stroke-dasharray: 3 2; }
+.hit { stroke: transparent; stroke-linecap: butt; }
+.tool-select .opening:hover .hit { stroke: rgba(36, 99, 235, .15); }
+
+.dim { text-anchor: middle; fill: #4a5568; font-weight: 500; pointer-events: none; }
+.layer-ghost { opacity: .22; pointer-events: none; }
+
+.sel-line { stroke: var(--accent); stroke-width: 2; pointer-events: none; }
+.sel-opening { stroke-width: 4; stroke-opacity: .6; }
+.sel-area { fill: rgba(36, 99, 235, .08); stroke: var(--accent); stroke-width: 2; pointer-events: none; }
+.handle { fill: #fff; stroke: var(--accent); stroke-width: 1.5; cursor: move; }
+.end-label { fill: var(--accent); font-weight: 700; pointer-events: none; }
+
+.marquee { fill: rgba(36, 99, 235, .08); stroke: var(--accent); stroke-dasharray: 4 3; stroke-width: 1; }
+.snap-point { fill: none; stroke: #e0560b; stroke-width: 2; }
+.snap-grid, .snap-angle { fill: var(--accent); }
+.preview-wall { stroke-opacity: .45; stroke-linecap: square; vector-effect: none; }
+.preview-exterior { stroke: #2b2b2b; }
+.preview-interior { stroke: #6f6f6f; }
+.preview-dim, .typed-length { fill: var(--accent); font-weight: 600; text-anchor: middle; }
+.typed-length { text-anchor: start; fill: #e0560b; }
+.preview-area { fill: rgba(36, 99, 235, .08); stroke: var(--accent); stroke-width: 1.5; stroke-dasharray: 5 3; }
+.preview-first { fill: #fff; stroke: var(--accent); stroke-width: 2; }
+.target-wall { stroke: var(--accent); stroke-width: 2; stroke-opacity: .6; }
+.preview-opening { stroke: rgba(224, 86, 11, .55); vector-effect: none; }
+.layer-selection, .layer-overlay { pointer-events: none; }
+.layer-selection .handle { pointer-events: all; }
