@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "name": "Sample House",
+    "modified": "2026-10-11T12:00:00.000Z",
+    "notes": "Small two-story test house. Grows with each development phase."
+  },
+  "settings": { "gridIn": 6, "defaultWallIn": { "exterior": 6, "interior": 4 } },
+  "floors": [
+    { "id": "F1", "name": "First Floor", "order": 1 },
+    { "id": "F2", "name": "Second Floor", "order": 2 }
+  ],
+  "walls": [],
+  "openings": [],
+  "areas": [],
+  "devices": [],
+  "panels": [
+    { "id": "p_main", "name": "Main", "spaces": 30, "location": "Garage, east wall", "notes": "", "fedFromBreakerId": null },
+    { "id": "p_sub", "name": "Sub", "spaces": 20, "location": "Basement stair", "notes": "", "fedFromBreakerId": null }
+  ],
+  "breakers": [],
+  "switchGroups": []
+}

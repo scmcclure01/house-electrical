@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>House Electrical</title>
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/print.css">
+</head>
+<body>
+  <header id="topbar">
+    <div class="menu" id="file-menu">
+      <button class="menu-btn" aria-haspopup="true">File ▾</button>
+      <div class="menu-list" role="menu">
+        <button data-cmd="new">New house</button>
+        <button data-cmd="open">Open…</button>
+        <button data-cmd="reopen" id="cmd-reopen">Reopen last</button>
+        <button data-cmd="sample">Load sample house</button>
+        <hr>
+        <button data-cmd="save">Save <kbd>⌘S</kbd></button>
+        <button data-cmd="saveAs">Save as…</button>
+      </div>
+    </div>
+    <div id="file-status"><span id="file-name">No file</span><span id="dirty-dot" title="Unsaved changes" hidden>●</span></div>
+
+    <nav id="floor-tabs" aria-label="Floor"></nav>
+    <label class="toggle"><input type="checkbox" id="ghost-floor"> Ghost other floor</label>
+
+    <nav id="view-switch" aria-label="View">
+      <button data-view="plan" class="active">Plan</button>
+      <button data-view="panels">Panels</button>
+      <button data-view="print">Print</button>
+    </nav>
+
+    <div id="history">
+      <button id="btn-undo" title="Undo (⌘Z)">↶</button>
+      <button id="btn-redo" title="Redo (⇧⌘Z)">↷</button>
+    </div>
+  </header>
+
+  <main id="workspace">
+    <section id="view-plan" class="view active">
+      <aside id="tool-rail" aria-label="Tools"></aside>
+      <div id="canvas-wrap">
+        <svg id="plan" xmlns="http://www.w3.org/2000/svg"></svg>
+        <div id="empty-state">
+          <h2>No house open</h2>
+          <p>Use <b>File → Open…</b> to open your house file, <b>New house</b> to start one, or <b>Load sample house</b> to try things out.</p>
+          <p class="warn" id="unsupported" hidden>This browser doesn't support the File System Access API. Use Chrome or Edge.</p>
+        </div>
+      </div>
+      <aside id="inspector" aria-label="Properties"></aside>
+    </section>
+
+    <section id="view-panels" class="view">
+      <div class="placeholder">Panels view arrives in Phase 3.</div>
+    </section>
+
+    <section id="view-print" class="view">
+      <div class="placeholder">Print view arrives in Phase 5.</div>
+    </section>
+  </main>
+
+  <footer id="statusbar">
+    <span id="status-msg">Ready</span>
+    <span id="status-cursor"></span>
+  </footer>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

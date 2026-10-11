@@ -1,0 +1,4 @@
+/* Print layouts (filled in during Phase 5). Page size is set per print job from the Print view. */
+@media print {
+  #topbar, #statusbar, #tool-rail, #inspector { display: none !important; }
+}

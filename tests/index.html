@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>House Electrical — Tests</title>
+  <style>
+    body { font: 13px/1.5 -apple-system, sans-serif; margin: 20px; }
+    .pass { color: #2e7d32; } .fail { color: #c62828; font-weight: 600; }
+    #summary { font-size: 16px; font-weight: 700; margin-bottom: 12px; }
+  </style>
+</head>
+<body>
+  <div id="summary">Running…</div>
+  <div id="out"></div>
+  <script type="module">
+    import { parseLength, formatLength } from '../js/units.js';
+    import { newHouse, migrate, validate, slotsOf, slotRow, slotSide, SCHEMA_VERSION } from '../js/model.js';
+    import * as store from '../js/store.js';
+
+    const out = document.getElementById('out');
+    let pass = 0, fail = 0;
+    function test(name, fn) {
+      try { fn(); pass++; out.insertAdjacentHTML('beforeend', `<div class="pass">✓ ${name}</div>`); }
+      catch (e) { fail++; out.insertAdjacentHTML('beforeend', `<div class="fail">✗ ${name} — ${e.message}</div>`); }
+    }
+    function eq(a, b) { if (JSON.stringify(a) !== JSON.stringify(b)) throw new Error(`expected ${JSON.stringify(b)}, got ${JSON.stringify(a)}`); }
+
+    // units
+    test('parse 12\'6"', () => eq(parseLength(`12'6"`), 150));
+    test('parse 12\'6', () => eq(parseLength(`12'6`), 150));
+    test('parse 12\' 6', () => eq(parseLength(`12' 6`), 150));
+    test('parse 12-6', () => eq(parseLength('12-6'), 150));
+    test('parse 12 6', () => eq(parseLength('12 6'), 150));
+    test('parse 12\'', () => eq(parseLength(`12'`), 144));
+    test('parse 150 (inches)', () => eq(parseLength('150'), 150));
+    test('parse 150"', () => eq(parseLength('150"'), 150));
+    test('parse 2.5\'', () => eq(parseLength(`2.5'`), 30));
+    test('parse junk → null', () => eq(parseLength('abc'), null));
+    test('format 150', () => eq(formatLength(150), `12' 6"`));
+    test('format 144', () => eq(formatLength(144), `12'`));
+    test('format 7', () => eq(formatLength(7), `7"`));
+
+    // slots
+    test('1-pole slot', () => eq(slotsOf({ position: 7, poles: 1 }), [7]));
+    test('2-pole spans n, n+2', () => eq(slotsOf({ position: 7, poles: 2 }), [7, 9]));
+    test('slot row/side', () => { eq(slotRow(1), 1); eq(slotRow(2), 1); eq(slotRow(9), 5); eq(slotSide(9), 'left'); eq(slotSide(10), 'right'); });
+
+    // model
+    test('new house validates', () => eq(validate(newHouse()), []));
+    test('migrate fills missing collections', () => {
+      const { doc } = migrate({ schemaVersion: 1, meta: { name: 'x' } });
+      eq(Array.isArray(doc.devices) && Array.isArray(doc.switchGroups), true);
+    });
+    test('newer schema opens read-only', () => eq(migrate({ schemaVersion: SCHEMA_VERSION + 1 }).readOnly, true));
+    test('missing schemaVersion throws', () => { let threw = false; try { migrate({}); } catch { threw = true; } eq(threw, true); });
+    test('overlapping breakers flagged', () => {
+      const d = newHouse();
+      d.breakers.push({ id: 'b1', panelId: 'p_main', position: 1, poles: 2, amps: 30 });
+      d.breakers.push({ id: 'b2', panelId: 'p_main', position: 3, poles: 1, amps: 20 });
+      eq(validate(d).some(e => e.includes('two breakers')), true);
+    });
+    test('breaker past last slot flagged', () => {
+      const d = newHouse();
+      d.breakers.push({ id: 'b1', panelId: 'p_main', position: 29, poles: 2, amps: 30 });
+      eq(validate(d).some(e => e.includes('outside')), true);
+    });
+
+    // store / undo
+    test('commit, undo, redo', () => {
+      store.load(newHouse('A'));
+      store.commit('rename', d => { d.meta.name = 'B'; });
+      eq(store.getDoc().meta.name, 'B'); eq(store.isDirty(), true);
+      store.undo(); eq(store.getDoc().meta.name, 'A');
+      store.redo(); eq(store.getDoc().meta.name, 'B');
+    });
+    test('no-op commit is not recorded', () => {
+      store.load(newHouse('A'));
+      eq(store.commit('noop', d => { d.meta.name = 'A'; }), false);
+      eq(store.canUndo(), false);
+    });
+
+    // sample file
+    const sample = await (await fetch('../samples/sample-house.json')).json();
+    test('sample file validates', () => eq(validate(migrate(sample).doc), []));
+
+    document.getElementById('summary').innerHTML =
+      `<span class="${fail ? 'fail' : 'pass'}">${pass} passed, ${fail} failed</span>`;
+  </script>
+</body>
+</html>
