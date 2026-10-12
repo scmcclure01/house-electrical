@@ -218,12 +218,6 @@ export function render() {
       <line x1="0" y1="0" x2="0" y2="16" class="attic-line"/></pattern>
   </defs>`;
   out += `<g class="layer-grid">${gridMarkup(v, doc.settings.gridIn)}</g>`;
-  if (view.ghost) {
-    out += '<g class="layer-ghost">';
-    for (const a of doc.areas) if (a.floorId !== fl) out += areaMarkup(a, true);
-    for (const w of doc.walls) if (w.floorId !== fl) out += wallMarkup(w, true);
-    out += '</g>';
-  }
   out += '<g class="layer-areas">';
   // Larger areas first so small rooms drawn inside them stay clickable.
   for (const a of doc.areas.filter(a => a.floorId === fl).sort((p, q) => Math.abs(polygonArea(q.points)) - Math.abs(polygonArea(p.points)))) out += areaMarkup(a, false);
@@ -235,6 +229,13 @@ export function render() {
     if (w && w.floorId === fl) out += openingMarkup(o, w);
   }
   out += '</g>';
+  // Ghost of the other floor(s) goes ON TOP as faint outlines; underneath, room fills would hide it.
+  if (view.ghost) {
+    out += '<g class="layer-ghost">';
+    for (const a of doc.areas) if (a.floorId !== fl) out += areaMarkup(a, true);
+    for (const w of doc.walls) if (w.floorId !== fl) out += wallMarkup(w, true);
+    out += '</g>';
+  }
   if (view.showDims) {
     out += '<g class="layer-dims">';
     for (const w of doc.walls) if (w.floorId === fl) out += dimMarkup(w);

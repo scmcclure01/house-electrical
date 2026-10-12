@@ -153,7 +153,9 @@ button.danger:hover:not(:disabled) { border-color: var(--danger); }
 .tool-select .opening:hover .hit { stroke: rgba(36, 99, 235, .15); }
 
 .dim { text-anchor: middle; fill: #4a5568; font-weight: 500; pointer-events: none; }
-.layer-ghost { opacity: .22; pointer-events: none; }
+.layer-ghost { pointer-events: none; }
+.layer-ghost .area { fill: none; stroke: #2463eb; stroke-opacity: .55; stroke-width: 1.5; stroke-dasharray: 6 4; }
+.layer-ghost .wall { stroke: #2463eb; stroke-opacity: .28; }
 
 .sel-line { stroke: var(--accent); stroke-width: 2; pointer-events: none; }
 .sel-opening { stroke-width: 4; stroke-opacity: .6; }
