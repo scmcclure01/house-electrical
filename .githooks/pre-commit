@@ -1,0 +1,3 @@
+#!/bin/sh
+# Stamp a fresh build id into index.html so GitHub Pages visitors never get stale files.
+python3 -I "$(git rev-parse --show-toplevel)/.githooks/stamp_build.py" && git add index.html

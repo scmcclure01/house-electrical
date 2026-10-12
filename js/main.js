@@ -153,5 +153,8 @@ if (!fileio.supported) {
   document.querySelectorAll('[data-cmd="open"], [data-cmd="reopen"], [data-cmd="save"], [data-cmd="saveAs"]').forEach(b => { b.disabled = true; });
 }
 
+// Show which build is running (helps spot a stale cached copy).
+$('#build-id').textContent = `build ${document.querySelector('meta[name=build]')?.content ?? 'dev'}`;
+
 refreshReopen();
 renderAll();

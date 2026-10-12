@@ -7,8 +7,12 @@ with the File System Access API (Chrome/Edge only).
 ## Run & test
 - `python3 serve.py` from the repo root, then http://localhost:8000 (ES modules and the File System Access
   API don't work from `file://`). It disables caching — with plain `http.server` Chrome keeps stale ES modules.
-  `.claude/launch.json` runs the same server for preview. GitHub Pages caches ~10 min: tell the user to
-  hard-reload (⌘⇧R) after a deploy.
+  `.claude/launch.json` runs the same server for preview.
+- **Cache busting**: GitHub Pages lets browsers cache files ~10 min, which once served new JS with old CSS.
+  A pre-commit hook (`.githooks/pre-commit` → `stamp_build.py`) rewrites the `BUILD` block in `index.html`
+  on every commit: versioned CSS links plus an import map adding `?v=<build>` to every module under `js/`
+  (found automatically). Enable it in a fresh clone with `git config core.hooksPath .githooks`.
+  Don't edit the BUILD block by hand; the running build id shows at the bottom right of the app.
 - Browser automation note: the test harness's "type" action doesn't fire keydown events; send key presses
   (e.g. `key "1 2 ' 6 Return"`) to exercise the wall tool's typed lengths.
 - Unit tests: http://localhost:8000/tests/ — in-browser assertions, no framework. Add a `test(...)` there
