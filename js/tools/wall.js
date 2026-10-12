@@ -6,7 +6,7 @@
 import * as store from '../store.js';
 import { view } from '../ui/viewstate.js';
 import { render } from '../render/plan.js';
-import { status } from '../ui/status.js';
+import { status, notify } from '../ui/status.js';
 import { id } from '../model.js';
 import { add, scale, same, dist, roundPt, snappedDirection } from '../geometry.js';
 import { parseLength, formatLength } from '../units.js';
@@ -22,7 +22,7 @@ export function wallTool(kind) {
 
   const hint = () => start
     ? `Click the next corner, or type a length (e.g. 12'6) and press Enter. Shift = 45° lock. Esc/double-click to finish.`
-    : `Click to start a ${kind} wall. Corners snap to the 6" grid and to existing corners.`;
+    : `Click to start an ${kind} wall. Corners snap to the 6" grid and to existing corners.`;
 
   function reset() { start = null; chainStart = null; buffer = ''; }
 
@@ -31,7 +31,7 @@ export function wallTool(kind) {
     store.commit(`Draw ${kind} wall`, doc => {
       doc.walls.push({ id: id('w'), floorId: view.floorId, kind, a: { ...a }, b: { ...b }, thicknessIn: doc.settings.defaultWallIn[kind] });
     });
-    if (chainStart && same(b, chainStart)) { reset(); status('Closed the loop. ' + hint()); }
+    if (chainStart && same(b, chainStart)) { reset(); notify('Closed the loop.'); }
     else start = { ...b };
   }
 

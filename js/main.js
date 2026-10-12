@@ -5,7 +5,7 @@ import * as store from './store.js';
 import * as fileio from './fileio.js';
 import { view, setView, onViewChange } from './ui/viewstate.js';
 import { renderInspector } from './ui/inspector.js';
-import { status } from './ui/status.js';
+import { status, notify } from './ui/status.js';
 import './tools/index.js';
 import './ui/toolrail.js';
 
@@ -58,9 +58,9 @@ function confirmDiscard() {
 function afterOpen({ doc, readOnly, warning, problems, name }) {
   store.load(doc, { readOnly });
   setView({ floorId: doc.floors[0]?.id ?? 'F1', selection: [] });
-  if (warning) status(warning, true);
-  else if (problems.length) status(`Opened ${name} with ${problems.length} problem(s): ${problems[0]}`, true);
-  else status(`Opened ${name}`);
+  if (warning) notify(warning, true);
+  else if (problems.length) notify(`Opened ${name} with ${problems.length} problem(s): ${problems[0]}`, true);
+  else notify(`Opened ${name}`);
   refreshReopen();
 }
 
@@ -70,7 +70,7 @@ const commands = {
     fileio.clearHandle();
     store.load(newHouse());
     setView({ floorId: 'F1', selection: [] });
-    status('New house — use Save as… to choose where to keep it.');
+    notify('New house — use Save as… to choose where to keep it.');
   },
   async open() {
     if (!confirmDiscard()) return;
@@ -88,21 +88,21 @@ const commands = {
     store.load(doc);
     setView({ floorId: 'F1', selection: [] });
     const problems = validate(doc);
-    status(problems.length ? `Sample loaded with problems: ${problems[0]}` : 'Sample loaded (not linked to a file — Save as… to keep a copy).', problems.length > 0);
+    notify(problems.length ? `Sample loaded with problems: ${problems[0]}` : 'Sample loaded (not linked to a file — Save as… to keep a copy).', problems.length > 0);
   },
   async save() {
     if (!store.getDoc() || store.isReadOnly()) return;
     document.activeElement?.blur(); // commit any field being edited
     const name = await fileio.saveFile(store.getDoc());
     store.markSaved();
-    status(`Saved ${name} at ${new Date().toLocaleTimeString()}`);
+    notify(`Saved ${name} at ${new Date().toLocaleTimeString()}`);
   },
   async saveAs() {
     if (!store.getDoc()) return;
     document.activeElement?.blur();
     const name = await fileio.saveFileAs(store.getDoc());
     store.markSaved();
-    status(`Saved ${name}`);
+    notify(`Saved ${name}`);
     refreshReopen();
   },
 };

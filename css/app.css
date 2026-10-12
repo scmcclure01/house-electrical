@@ -175,3 +175,13 @@ button.danger:hover:not(:disabled) { border-color: var(--danger); }
 .preview-opening { stroke: rgba(224, 86, 11, .55); vector-effect: none; }
 .layer-selection, .layer-overlay { pointer-events: none; }
 .layer-selection .handle { pointer-events: all; }
+
+/* ---- toast ---- */
+#toast {
+  position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 10;
+  max-width: 70%; padding: 8px 16px; border-radius: 6px;
+  background: #1f2937; color: #fff; font-weight: 500; box-shadow: 0 4px 14px rgba(0,0,0,.18);
+  pointer-events: none;
+}
+#toast.error { background: var(--danger); }
+#statusbar { font-size: 13px; color: #4a4f55; padding: 6px 12px; }
