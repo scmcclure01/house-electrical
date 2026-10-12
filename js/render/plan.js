@@ -5,6 +5,7 @@ import { getDoc } from '../store.js';
 import { view } from '../ui/viewstate.js';
 import { add, sub, scale as mul, unit, normal, cross, labelPoint, polygonArea, bounds } from '../geometry.js';
 import { formatLength } from '../units.js';
+import { R, symbolMarkup, deviceCenter, deviceTags, facing } from './symbols.js';
 
 export const svg = document.getElementById('plan');
 
@@ -62,6 +63,7 @@ export function fit() {
   if (doc) {
     for (const w of doc.walls) pts.push(w.a, w.b);
     for (const a of doc.areas) pts.push(...a.points);
+    for (const d of doc.devices) pts.push(d);
   }
   const b = pts.length ? bounds(pts) : { minX: -24, minY: -24, maxX: 480, maxY: 360 };
   const pad = 48;
@@ -106,11 +108,14 @@ function gridMarkup(v, gridIn) {
   return out;
 }
 
-function areaMarkup(a, ghost) {
+function areaMarkup(a, ghost, devices = []) {
   let out = `<polygon points="${ptsAttr(a.points)}" class="area area-${a.kind}" ${ghost ? '' : `data-id="${a.id}"`}/>`;
   if (ghost) return out;
   if (a.kind === 'stair') return out + stairMarkup(a);
   const lp = labelPoint(a.points);
+  // A ceiling light at the room centre would cover the name: lift the label above it.
+  const symR = R * symScale();
+  if (devices.some(d => !d.wallId && Math.abs(d.x - lp.x) < symR * 3 && Math.abs(d.y - lp.y) < symR * 2.5)) lp.y -= symR * 3.2;
   const b = bounds(a.points);
   // Shrink the label for narrow rooms so it stays inside (down to 7px on screen).
   const fs = Math.max(px(7), Math.min(px(12), ((b.maxX - b.minX) * 0.9) / (Math.max(a.name.length, 4) * 0.62)));
@@ -165,6 +170,29 @@ function openingMarkup(o, wall) {
   return out + '</g>';
 }
 
+// Symbols are real-size (R inches) but never smaller than ~15px across on screen.
+export const symScale = () => Math.max(1, px(7.5) / R);
+// Text tags only once zoomed in enough to read them without overlap (selected devices always show theirs).
+const TAGS_MIN_SCALE = 1.6; // screen px per inch
+
+// extraCls: e.g. 'preview' for a tool's ghost symbol (no data-id, so it isn't clickable).
+export function deviceMarkup(d, extraCls = '') {
+  const s = symScale();
+  const c = deviceCenter(d, s);
+  const idAttr = extraCls ? '' : `data-id="${d.id}"`;
+  let out = `<g ${idAttr} class="device device-${d.type} ${extraCls}" transform="translate(${f(c.x)} ${f(c.y)}) scale(${f(s)})">` +
+    `${symbolMarkup(d)}<circle r="${R * 1.5}" class="dev-hit"/></g>`;
+  const tags = deviceTags(d);
+  if (tags.length && (camera.scale >= TAGS_MIN_SCALE || extraCls || view.selection.includes(d.id))) {
+    const fs = px(10);
+    const u = d.wallId ? facing(d) : { x: 0, y: 1 };
+    const dist = R * s * (d.wallId ? 1.6 : 1.4) + fs * 0.9;
+    const p = add(c, mul(u, dist));
+    out += `<text x="${f(p.x)}" y="${f(p.y + fs * 0.35)}" font-size="${f(fs)}" class="device-tag ${extraCls}">${esc(tags.join(' · '))}</text>`;
+  }
+  return out;
+}
+
 function dimMarkup(w) {
   const u = unit(sub(w.b, w.a));
   let n = normal(u);
@@ -201,6 +229,12 @@ function selectionMarkup(doc, floorId) {
     out += line(g.p0, g.p1, 'sel-line sel-opening');
     out += `<text x="${f(wall.a.x + px(7))}" y="${f(wall.a.y - px(7))}" font-size="${f(px(11))}" class="end-label">A</text>`;
   }
+  const s = symScale();
+  for (const d of doc.devices) {
+    if (d.floorId !== floorId || !sel.has(d.id)) continue;
+    const c = deviceCenter(d, s);
+    out += `<circle cx="${f(c.x)}" cy="${f(c.y)}" r="${f(R * s * 1.7)}" class="sel-device"/>`;
+  }
   return out;
 }
 
@@ -218,9 +252,10 @@ export function render() {
       <line x1="0" y1="0" x2="0" y2="16" class="attic-line"/></pattern>
   </defs>`;
   out += `<g class="layer-grid">${gridMarkup(v, doc.settings.gridIn)}</g>`;
+  const floorDevices = doc.devices.filter(d => d.floorId === fl);
   out += '<g class="layer-areas">';
   // Larger areas first so small rooms drawn inside them stay clickable.
-  for (const a of doc.areas.filter(a => a.floorId === fl).sort((p, q) => Math.abs(polygonArea(q.points)) - Math.abs(polygonArea(p.points)))) out += areaMarkup(a, false);
+  for (const a of doc.areas.filter(a => a.floorId === fl).sort((p, q) => Math.abs(polygonArea(q.points)) - Math.abs(polygonArea(p.points)))) out += areaMarkup(a, false, floorDevices);
   out += '</g><g class="layer-walls">';
   for (const w of doc.walls) if (w.floorId === fl) out += wallMarkup(w, false);
   out += '</g><g class="layer-openings">';
@@ -228,6 +263,8 @@ export function render() {
     const w = wallsById.get(o.wallId);
     if (w && w.floorId === fl) out += openingMarkup(o, w);
   }
+  out += '</g><g class="layer-devices">';
+  for (const d of floorDevices) out += deviceMarkup(d);
   out += '</g>';
   // Ghost of the other floor(s) goes ON TOP as faint outlines; underneath, room fills would hide it.
   if (view.ghost) {

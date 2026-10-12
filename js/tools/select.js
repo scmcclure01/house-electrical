@@ -7,6 +7,7 @@ import { render, getScale } from '../render/plan.js';
 import { add, sub, same, unit, snapToGrid, bounds, inRect } from '../geometry.js';
 import { wallLength } from '../model.js';
 import { snapPoint } from './snap.js';
+import { devicePlacement } from './device.js';
 
 const DRAG_START_PX = 3;
 const clone = o => JSON.parse(JSON.stringify(o));
@@ -29,6 +30,10 @@ function moveSelection(doc, orig, d, rawDelta) {
   });
   orig.areas.forEach((oa, i) => {
     if (sel.has(oa.id)) doc.areas[i].points = oa.points.map(p => add(p, d));
+  });
+  // Selected devices move; so do devices mounted on a moved wall.
+  orig.devices.forEach((od, i) => {
+    if (sel.has(od.id) || (od.wallId && sel.has(od.wallId))) Object.assign(doc.devices[i], add(od, d));
   });
   orig.openings.forEach((oo, i) => {
     if (!sel.has(oo.id) || sel.has(oo.wallId)) return;
@@ -55,6 +60,7 @@ function itemsInRect(doc, r) {
   const ids = [];
   for (const w of doc.walls) if (w.floorId === view.floorId && inRect(w.a, r) && inRect(w.b, r)) ids.push(w.id);
   for (const a of doc.areas) if (a.floorId === view.floorId && a.points.every(p => inRect(p, r))) ids.push(a.id);
+  for (const d of doc.devices) if (d.floorId === view.floorId && inRect(d, r)) ids.push(d.id);
   return ids;
 }
 
@@ -97,9 +103,17 @@ export const selectTool = {
         if (!store.beginGesture(drag.type === 'handle' ? 'Reshape' : 'Move')) { drag = null; return; }
         drag.orig = clone(store.getDoc());
         if (drag.type === 'handle') prepareHandle(drag);
+        if (drag.type === 'move' && view.selection.length === 1) drag.single = drag.orig.devices.find(x => x.id === view.selection[0]);
       }
     }
     if (drag.type === 'marquee') { drag.cur = raw; render(); return; }
+    if (drag.type === 'move' && drag.single) {
+      // One device: re-place it under the cursor so it snaps onto walls like the device tool.
+      const od = drag.single;
+      const p = devicePlacement(raw, od.type, od.lightKind);
+      store.updateGesture(doc => { Object.assign(doc.devices.find(x => x.id === od.id), p); });
+      return;
+    }
     if (drag.type === 'move') {
       const grid = store.getDoc().settings.gridIn;
       const rawDelta = sub(raw, drag.startRaw);

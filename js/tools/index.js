@@ -12,6 +12,8 @@ import { selectTool } from './select.js';
 import { wallTool } from './wall.js';
 import { areaTool } from './area.js';
 import { openingTool } from './opening.js';
+import { deviceTool } from './device.js';
+import { DEVICE_TYPES } from '../model.js';
 
 export const TOOLS = {
   select: selectTool,
@@ -22,6 +24,7 @@ export const TOOLS = {
   door: openingTool('door'),
   window: openingTool('window'),
   opening: openingTool('opening'),
+  ...Object.fromEntries(DEVICE_TYPES.map(t => [t, deviceTool(t)])),
 };
 
 const current = () => TOOLS[view.tool] ?? selectTool;

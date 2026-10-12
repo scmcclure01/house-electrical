@@ -17,7 +17,7 @@
     import { newHouse, migrate, validate, slotsOf, slotRow, slotSide, SCHEMA_VERSION } from '../js/model.js';
     import * as store from '../js/store.js';
     import { projectOnSegment, pointInPolygon, polygonArea, labelPoint, snapAngle, snapToGrid } from '../js/geometry.js';
-    import { deleteIds, findById } from '../js/model.js';
+    import { deleteIds, findById, areaAt, normalizeDevice, isWallMounted } from '../js/model.js';
 
     const out = document.getElementById('out');
     let pass = 0, fail = 0;
@@ -114,6 +114,29 @@
       const d = newHouse();
       d.areas.push({ id: 'a1', floorId: 'F1', name: 'X', kind: 'room', points: L });
       eq(findById(d, 'a1').kind, 'area');
+    });
+
+    // devices
+    test('areaAt picks the smallest containing area', () => {
+      const d = newHouse();
+      d.areas.push({ id: 'big', floorId: 'F1', name: 'Bedroom', kind: 'room', points: [{x:0,y:0},{x:200,y:0},{x:200,y:200},{x:0,y:200}] });
+      d.areas.push({ id: 'small', floorId: 'F1', name: 'Closet', kind: 'room', points: [{x:10,y:10},{x:50,y:10},{x:50,y:50},{x:10,y:50}] });
+      eq([areaAt(d, 'F1', {x:20,y:20})?.id, areaAt(d, 'F1', {x:150,y:150})?.id, areaAt(d, 'F2', {x:20,y:20})], ['small', 'big', null]);
+    });
+    test('normalizeDevice sets per-type fields', () => {
+      const o = normalizeDevice({ id: 'd', type: 'outlet' });
+      eq([o.gfci, o.afci, o.breakerId, o.verified, 'port' in o], [false, false, null, false, false]);
+      o.type = 'ethernet'; normalizeDevice(o);
+      eq(['gfci' in o, o.port], [false, '']);
+    });
+    test('low-voltage drops are never on a breaker', () => eq(normalizeDevice({ type: 'cable', breakerId: 'b1' }).breakerId, null));
+    test('ceiling lights are not wall-mounted', () => eq([isWallMounted('light', 'ceiling'), isWallMounted('light', 'wall'), isWallMounted('outlet')], [false, true, true]));
+    test('deleting a wall frees its devices', () => {
+      const d = newHouse();
+      d.walls.push({ id: 'w1', floorId: 'F1', kind: 'interior', a: {x:0,y:0}, b: {x:96,y:0}, thicknessIn: 4 });
+      d.devices.push(normalizeDevice({ id: 'd1', floorId: 'F1', type: 'outlet', x: 48, y: 2, wallId: 'w1' }));
+      deleteIds(d, ['w1']);
+      eq([d.devices.length, d.devices[0].wallId], [1, null]);
     });
 
     // gestures

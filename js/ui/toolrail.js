@@ -3,7 +3,8 @@
 import { view, setView, onViewChange } from './viewstate.js';
 import { TOOLS, setTool } from '../tools/index.js';
 import { zoomBy, fit } from '../render/plan.js';
-import { AREA_KINDS } from '../model.js';
+import { AREA_KINDS, DEVICE_TYPES, LIGHT_KINDS } from '../model.js';
+import { symbolMarkup } from '../render/symbols.js';
 
 const ICONS = {
   select: '<path d="M6 3l12 9-5.5 1.2L10 19z" fill="currentColor"/>',
@@ -16,7 +17,11 @@ const ICONS = {
   opening: '<path d="M2 12h6M16 12h6M8 8v8M16 8v8" fill="none" stroke="currentColor" stroke-width="2"/>',
 };
 
-const GROUPS = [['select'], ['extWall', 'intWall', 'area', 'stair'], ['door', 'window', 'opening']];
+const GROUPS = [['select'], ['extWall', 'intWall', 'area', 'stair'], ['door', 'window', 'opening'], DEVICE_TYPES];
+
+// Device icons reuse the real plan symbols, drawn facing right.
+const ICON_DEVICE = { outlet: {}, receptacle240: {}, hardwired: {}, switch: { switchKind: 'single' }, light: { lightKind: 'ceiling' }, cable: {}, ethernet: {} };
+for (const t of DEVICE_TYPES) ICONS[t] = `<g transform="translate(12 12) scale(1.15)" class="icon-sym">${symbolMarkup({ type: t, rot: 0, ...ICON_DEVICE[t] })}</g>`;
 
 const rail = document.getElementById('tool-rail');
 const opts = document.getElementById('tool-options');
@@ -40,15 +45,30 @@ function buildRail() {
 
 function renderRail() {
   rail.querySelectorAll('.rail-btn').forEach(b => b.classList.toggle('active', b.dataset.tool === view.tool));
+  const o = view.deviceOpts;
+  const setOpt = patch => setView({ deviceOpts: { ...view.deviceOpts, ...patch } });
+  const cap = k => k[0].toUpperCase() + k.slice(1);
+  let html = '';
   if (view.tool === 'area') {
-    opts.hidden = false;
-    opts.innerHTML = `<label>Area type <select id="area-kind">${AREA_KINDS.filter(k => k !== 'stair')
-      .map(k => `<option value="${k}"${k === view.areaKind ? ' selected' : ''}>${k[0].toUpperCase() + k.slice(1)}</option>`).join('')}</select></label>`;
-    opts.querySelector('#area-kind').addEventListener('change', e => setView({ areaKind: e.target.value }));
-  } else {
-    opts.hidden = true;
-    opts.innerHTML = '';
+    html = `<label>Area type <select id="opt-area">${AREA_KINDS.filter(k => k !== 'stair')
+      .map(k => `<option value="${k}"${k === view.areaKind ? ' selected' : ''}>${cap(k)}</option>`).join('')}</select></label>`;
+  } else if (view.tool === 'outlet') {
+    html = `<label><input type="checkbox" id="opt-gfci"${o.gfci ? ' checked' : ''}> GFCI</label>
+      <label><input type="checkbox" id="opt-afci"${o.afci ? ' checked' : ''}> AFCI</label>`;
+  } else if (view.tool === 'switch') {
+    html = `<label>Switch <select id="opt-switch"><option value="single">Single-pole</option>
+      <option value="3way"${o.switchKind === '3way' ? ' selected' : ''}>3-way</option></select></label>`;
+  } else if (view.tool === 'light') {
+    html = `<label>Light <select id="opt-light">${LIGHT_KINDS
+      .map(k => `<option value="${k}"${k === o.lightKind ? ' selected' : ''}>${cap(k)}</option>`).join('')}</select></label>`;
   }
+  opts.hidden = !html;
+  opts.innerHTML = html;
+  opts.querySelector('#opt-area')?.addEventListener('change', e => setView({ areaKind: e.target.value }));
+  opts.querySelector('#opt-gfci')?.addEventListener('change', e => setOpt({ gfci: e.target.checked }));
+  opts.querySelector('#opt-afci')?.addEventListener('change', e => setOpt({ afci: e.target.checked }));
+  opts.querySelector('#opt-switch')?.addEventListener('change', e => setOpt({ switchKind: e.target.value }));
+  opts.querySelector('#opt-light')?.addEventListener('change', e => setOpt({ lightKind: e.target.value }));
 }
 
 buildRail();

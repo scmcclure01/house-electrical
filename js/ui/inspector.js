@@ -3,7 +3,8 @@
 
 import { getDoc, commit, isReadOnly } from '../store.js';
 import { view, setView } from './viewstate.js';
-import { findById, deleteIds, wallLength, WALL_KINDS, AREA_KINDS, OPENING_KINDS } from '../model.js';
+import { findById, deleteIds, wallLength, areaAt, normalizeDevice, WALL_KINDS, AREA_KINDS, OPENING_KINDS,
+  DEVICE_TYPES, DEVICE_NAMES, LIGHT_KINDS } from '../model.js';
 import { add, sub, scale, unit, same, polygonArea } from '../geometry.js';
 import { parseLength, formatLength } from '../units.js';
 import { status } from './status.js';
@@ -145,6 +146,50 @@ function renderArea(a) {
   bindDelete([a.id]);
 }
 
+// ---------- device ----------
+const LABEL_HINTS = {
+  outlet: 'e.g. Counter left', receptacle240: 'e.g. Dryer', hardwired: 'e.g. Dishwasher, Furnace',
+  switch: 'e.g. Entry', light: 'e.g. Pendant over island', cable: 'e.g. Living room TV', ethernet: 'e.g. Office desk',
+};
+
+function renderDevice(d, doc) {
+  const room = areaAt(doc, d.floorId, d);
+  const named = (list, names, value) => list.map(v => `<option value="${v}"${v === value ? ' selected' : ''}>${names[v] ?? cap(v)}</option>`).join('');
+  let typeFields = '';
+  if (d.type === 'outlet') {
+    typeFields = `<div class="check-row">
+      <label><input type="checkbox" id="ins-gfci"${d.gfci ? ' checked' : ''}> GFCI</label>
+      <label><input type="checkbox" id="ins-afci"${d.afci ? ' checked' : ''}> AFCI</label></div>`;
+  } else if (d.type === 'switch') {
+    typeFields = `<label>Switch type <select id="ins-switchkind">${named(['single', '3way'], { single: 'Single-pole', '3way': '3-way' }, d.switchKind)}</select></label>`;
+  } else if (d.type === 'light') {
+    typeFields = `<label>Light type <select id="ins-lightkind">${options(LIGHT_KINDS, d.lightKind)}</select></label>`;
+  } else if (d.type === 'cable' || d.type === 'ethernet') {
+    typeFields = `<label>Port / jack number <input id="ins-port" value="${esc(d.port)}" placeholder="e.g. 12 or A3"></label>`;
+  }
+  el.innerHTML = `
+    <h3>${DEVICE_NAMES[d.type]}</h3>
+    <p class="meta">${room ? `In <b>${esc(room.name)}</b>` : 'Not inside any area'} · ${d.wallId ? 'on a wall' : 'free-standing'}</p>
+    <label>Type <select id="ins-type">${named(DEVICE_TYPES, DEVICE_NAMES, d.type)}</select></label>
+    ${typeFields}
+    <label>Label <input id="ins-label" value="${esc(d.label)}" placeholder="${LABEL_HINTS[d.type]}"></label>
+    <label>Notes <textarea id="ins-notes" placeholder="Anything worth remembering — box location, wire color, tested on…">${esc(d.notes)}</textarea></label>
+    ${d.wallId ? '' : '<div class="btn-row"><button id="ins-rotate">Rotate 90°</button></div>'}
+    <p class="meta">Circuit and verified status come in the next phase.</p>
+    ${deleteBtn}`;
+  const edit = fn => doc2 => fn(doc2.devices.find(x => x.id === d.id));
+  bind('#ins-type', 'Change device type', (doc2, v) => edit(x => { x.type = v; normalizeDevice(x); })(doc2), { rerender: true });
+  bind('#ins-gfci', 'Toggle GFCI', (doc2, v, input) => edit(x => { x.gfci = input.checked; })(doc2));
+  bind('#ins-afci', 'Toggle AFCI', (doc2, v, input) => edit(x => { x.afci = input.checked; })(doc2));
+  bind('#ins-switchkind', 'Change switch type', (doc2, v) => edit(x => { x.switchKind = v; })(doc2));
+  bind('#ins-lightkind', 'Change light type', (doc2, v) => edit(x => { x.lightKind = v; })(doc2), { rerender: true });
+  bind('#ins-port', 'Set port', (doc2, v) => edit(x => { x.port = v.trim(); })(doc2));
+  bind('#ins-label', 'Label device', (doc2, v) => edit(x => { x.label = v.trim(); })(doc2));
+  bind('#ins-notes', 'Edit device notes', (doc2, v) => edit(x => { x.notes = v; })(doc2));
+  button('#ins-rotate', () => commit('Rotate device', edit(x => { x.rot = ((x.rot ?? 0) + 90) % 360; })));
+  bindDelete([d.id]);
+}
+
 // ---------- multiple ----------
 function renderMulti(items) {
   const counts = {};
@@ -170,4 +215,5 @@ export function renderInspector() {
   else if (items[0].kind === 'wall') renderWall(items[0].obj);
   else if (items[0].kind === 'opening') renderOpening(items[0].obj, doc);
   else if (items[0].kind === 'area') renderArea(items[0].obj);
+  else if (items[0].kind === 'device') renderDevice(items[0].obj, doc);
 }

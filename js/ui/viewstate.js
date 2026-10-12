@@ -10,6 +10,7 @@ export const view = {
   tool: 'select',     // active plan tool (see js/tools/index.js)
   areaKind: 'room',   // kind used by the Area tool
   showDims: false,    // label every wall with its length
+  deviceOpts: { gfci: false, afci: false, switchKind: 'single', lightKind: 'ceiling' }, // defaults for new devices
 };
 
 export function setView(patch) {

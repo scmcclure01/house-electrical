@@ -1,9 +1,42 @@
 // House document: schema version, factory, migration, validation.
 // All lengths are whole inches. All floors share one coordinate origin.
 
+import { pointInPolygon, polygonArea } from './geometry.js';
+
 export const SCHEMA_VERSION = 1;
 
 export const DEVICE_TYPES = ['outlet', 'receptacle240', 'hardwired', 'switch', 'light', 'cable', 'ethernet'];
+export const DEVICE_NAMES = {
+  outlet: 'Outlet', receptacle240: '240V receptacle', hardwired: 'Hardwired equipment',
+  switch: 'Switch', light: 'Light', cable: 'Cable TV drop', ethernet: 'Ethernet drop',
+};
+export const LIGHT_KINDS = ['ceiling', 'wall', 'recessed', 'fan'];
+export const SWITCH_KINDS = ['single', '3way'];
+export const LOW_VOLTAGE = new Set(['cable', 'ethernet']);
+
+// Ensure a device has exactly the per-type fields its type uses (called on create and type change).
+export function normalizeDevice(d) {
+  d.label ??= '';
+  d.notes ??= '';
+  d.breakerId ??= null;
+  d.verified ??= false;
+  d.wallId ??= null;
+  d.rot ??= 0;
+  const keep = { outlet: ['gfci', 'afci'], cable: ['port'], ethernet: ['port'], switch: ['switchKind'], light: ['lightKind'] }[d.type] ?? [];
+  for (const k of ['gfci', 'afci', 'port', 'switchKind', 'lightKind']) if (!keep.includes(k)) delete d[k];
+  if (d.type === 'outlet') { d.gfci ??= false; d.afci ??= false; }
+  if (LOW_VOLTAGE.has(d.type)) d.port ??= '';
+  if (d.type === 'switch') d.switchKind ??= 'single';
+  if (d.type === 'light') d.lightKind ??= 'ceiling';
+  // Low-voltage drops aren't on a breaker.
+  if (LOW_VOLTAGE.has(d.type)) d.breakerId = null;
+  return d;
+}
+
+// Devices that mount on a wall face (everything except ceiling-type lights).
+export function isWallMounted(type, lightKind) {
+  return type !== 'light' || lightKind === 'wall';
+}
 export const AREA_KINDS = ['room', 'garage', 'attic', 'exterior', 'stair'];
 export const WALL_KINDS = ['exterior', 'interior'];
 export const OPENING_KINDS = ['door', 'window', 'opening'];
@@ -122,13 +155,27 @@ export function deleteIds(doc, ids) {
   const del = new Set(ids);
   for (const o of doc.openings) if (del.has(o.wallId)) del.add(o.id);
   for (const key of Object.values(COLLECTIONS)) doc[key] = doc[key].filter(o => !del.has(o.id));
-  for (const d of doc.devices) if (d.breakerId && del.has(d.breakerId)) d.breakerId = null;
+  for (const d of doc.devices) {
+    if (d.breakerId && del.has(d.breakerId)) d.breakerId = null;
+    if (d.wallId && del.has(d.wallId)) d.wallId = null;
+  }
   for (const p of doc.panels) if (p.fedFromBreakerId && del.has(p.fedFromBreakerId)) p.fedFromBreakerId = null;
   for (const g of doc.switchGroups) {
     g.switchIds = g.switchIds.filter(x => !del.has(x));
     g.loadIds = g.loadIds.filter(x => !del.has(x));
   }
   doc.switchGroups = doc.switchGroups.filter(g => g.switchIds.length > 0);
+}
+
+// The smallest area on a floor containing point p (so a closet inside a bedroom wins), or null.
+export function areaAt(doc, floorId, p) {
+  let best = null, bestA = Infinity;
+  for (const a of doc.areas) {
+    if (a.floorId !== floorId || !pointInPolygon(p, a.points)) continue;
+    const A = Math.abs(polygonArea(a.points));
+    if (A < bestA) { best = a; bestA = A; }
+  }
+  return best;
 }
 
 export function wallLength(w) { return Math.hypot(w.b.x - w.a.x, w.b.y - w.a.y); }

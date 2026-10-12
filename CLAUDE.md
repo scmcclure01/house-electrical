@@ -38,6 +38,9 @@ with the File System Access API (Chrome/Edge only).
   previews. Full SVG re-render on every change is intentional (small documents, simple code).
 - Shared wall corners: moving a wall end also moves other wall ends at the same point (same floor).
 - Opening `offsetIn` is measured from wall end `a`; the UI marks that end with an "A".
+- Keyboard shortcuts: V select · W/I ext/int wall · A area · T stair · D/N/O door/window/opening ·
+  R outlet · 2 240V · H hardwired · S switch · L light · C cable · E ethernet · F fit · Esc · Delete.
+- Device symbols scale up when zoomed out (min ~15px) and text tags hide below 1.6 px/inch.
 - Code style: 2-space indent, single quotes, semicolons, small modules, comments only where intent isn't obvious.
 
 ## Layout
@@ -52,10 +55,12 @@ js/geometry.js      points, snapping, projection, polygon area / label point
 js/ui/viewstate.js  UI-only state (floor, selection, tool, display toggles)
 js/ui/inspector.js  properties panel     js/ui/toolrail.js  tool buttons, tool options, zoom controls
 js/ui/status.js     status bar
-js/render/plan.js   SVG plan renderer + camera (viewBox pan/zoom), openingGeom()
+js/render/plan.js   SVG plan renderer + camera (viewBox pan/zoom), openingGeom(), deviceMarkup()
+js/render/symbols.js  electrical symbols (local frame, radius R=6"), deviceTags(); reused for rail icons/legend
 js/tools/index.js   tool registry, pointer/wheel/keyboard routing, Delete/Esc/F shortcuts
 js/tools/snap.js    corner → Shift 45° → grid snapping
-js/tools/select.js, wall.js, area.js, opening.js   individual tools
+js/tools/select.js, wall.js, area.js, opening.js, device.js   individual tools
+                    (device.js exports devicePlacement(): wall-face snapping / room-centre snapping)
 js/print/           (Phase 5)
 samples/sample-house.json   tests/index.html
 ```
@@ -68,9 +73,13 @@ floors[], walls[], openings[], areas[], devices[], panels[], breakers[], switchG
 - **wall** `{id, floorId, kind: exterior|interior, a{x,y}, b{x,y}, thicknessIn}`
 - **opening** `{id, wallId, kind: door|window|opening, offsetIn (from wall end a), widthIn, hinge: a|b, swing: left|right}`
 - **area** `{id, floorId, name, kind: room|garage|attic|exterior|stair, points[{x,y}], stairDir?: up|down}`
-- **device** `{id, floorId, type, x, y, rot, label, notes, breakerId|null, verified}` plus per-type fields:
+- **device** `{id, floorId, type, x, y, rot, wallId|null, label, notes, breakerId|null, verified}` plus per-type fields:
   outlet `gfci, afci`; cable/ethernet `port`; switch `switchKind: single|3way`; light `lightKind: ceiling|wall|recessed|fan`.
-  Types: `outlet, receptacle240, hardwired, switch, light, cable, ethernet`.
+  Types: `outlet, receptacle240, hardwired, switch, light, cable, ethernet`. Always run `normalizeDevice()` after
+  creating a device or changing its type. Wall devices: `wallId` set, `(x,y)` = point on the wall face, `rot` =
+  degrees of the direction they face (away from the wall); the symbol is drawn one radius out from (x,y).
+  Free devices (ceiling lights, or anything not near a wall): `wallId` null, `(x,y)` = symbol centre.
+  Low-voltage drops (cable/ethernet) never get a breaker.
 - **panel** `{id, name, spaces, location, notes, fedFromBreakerId|null}` — main (~30 spaces) and one subpanel
   fed from a 2-pole breaker in the main.
 - **breaker** `{id, panelId, position, poles: 1|2, amps, label, notes, color}`. A breaker *is* a circuit.
@@ -88,7 +97,7 @@ Rules (`validate()`):
 ## Development phases
 0. Scaffold, file I/O, undo/redo ✅
 1. Walls, areas (rooms/garage/attic/exterior/stair), openings, pan/zoom, select/move/delete ✅
-2. Devices with standard plan symbols
+2. Devices with standard plan symbols ✅
 3. Panels view, breakers, circuit assignment, colors, verified styling, unassigned view
 4. Switch → load links, 3-way
 5. Print: floor sheets with legend (Letter/11×17), circuit table, panel door schedules, breaker labels

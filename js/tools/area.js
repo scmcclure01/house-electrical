@@ -35,7 +35,7 @@ export function areaTool(fixedKind) {
 
   return {
     label: fixedKind === 'stair' ? 'Stair opening' : 'Area',
-    shortcut: fixedKind === 'stair' ? 's' : 'a',
+    shortcut: fixedKind === 'stair' ? 't' : 'a',
     get hint() {
       return pts.length
         ? 'Click the next corner. Click the first corner or press Enter to close. Backspace = undo corner, Esc = cancel.'
