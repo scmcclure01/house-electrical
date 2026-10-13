@@ -2,7 +2,6 @@
 
 import { view, setView, onViewChange } from './viewstate.js';
 import { TOOLS, setTool } from '../tools/index.js';
-import { zoomBy, fit } from '../render/plan.js';
 import { AREA_KINDS, DEVICE_TYPES, LIGHT_KINDS, assignableBreakers, breakerTitle } from '../model.js';
 import * as store from '../store.js';
 import { symbolMarkup } from '../render/symbols.js';
@@ -91,7 +90,3 @@ onViewChange(patch => { if ('tool' in patch || ('assignBreakerId' in patch && vi
 // Breakers can change under the Assign tool (undo, opening a file): refresh its list.
 store.subscribe(reason => { if (reason !== 'preview' && view.tool === 'assign') renderRail(); });
 
-document.getElementById('zoom-in').addEventListener('click', () => zoomBy(1.25));
-document.getElementById('zoom-out').addEventListener('click', () => zoomBy(0.8));
-document.getElementById('zoom-fit').addEventListener('click', () => fit());
-document.getElementById('show-dims').addEventListener('change', e => setView({ showDims: e.target.checked }));

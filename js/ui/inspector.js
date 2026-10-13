@@ -4,7 +4,8 @@
 import { getDoc, commit, isReadOnly } from '../store.js';
 import { view, setView } from './viewstate.js';
 import { findById, deleteIds, wallLength, areaAt, normalizeDevice, WALL_KINDS, AREA_KINDS, OPENING_KINDS,
-  DEVICE_TYPES, DEVICE_NAMES, LIGHT_KINDS, LOW_VOLTAGE, assignableBreakers, breakerTitle } from '../model.js';
+  DEVICE_TYPES, DEVICE_NAMES, LIGHT_KINDS, LOW_VOLTAGE, assignableBreakers, breakerTitle, deviceCode, nextDeviceNum,
+  renumberDevices } from '../model.js';
 import { add, sub, scale, unit, same, polygonArea } from '../geometry.js';
 import { parseLength, formatLength } from '../units.js';
 import { status } from './status.js';
@@ -68,9 +69,18 @@ function renderHouse(doc) {
     <label>Notes <textarea id="ins-house-notes">${esc(doc.meta.notes)}</textarea></label>
     <p class="meta">${counts}</p>
     <p class="meta">Schema v${doc.schemaVersion} · last saved ${doc.meta.modified ? new Date(doc.meta.modified).toLocaleString() : '—'}</p>
-    <p class="meta tip">Tip: select something on the plan to edit it here.</p>`;
+    <p class="meta tip">Tip: select something on the plan to edit it here.</p>
+    <h3 class="sub-head">Device numbers</h3>
+    <p class="meta">Each device gets a permanent number: type letter + floor + sequence (R103 = 3rd outlet on floor 1).
+      Once it's on a breaker the full code adds the panel and slot: <b>M7-R103</b>.<br>
+      R outlet · V 240V · E hardwired · S switch · L light/fan · TV cable · D data</p>
+    <button id="ins-renumber">Renumber all devices…</button>`;
   bind('#ins-house-name', 'Rename house', (d, v) => { d.meta.name = v.trim(); });
   bind('#ins-house-notes', 'Edit house notes', (d, v) => { d.meta.notes = v; });
+  button('#ins-renumber', () => {
+    if (!confirm('Renumber every device room by room (top-to-bottom, left-to-right)? Numbers you have already written on labels will change.')) return;
+    commit('Renumber devices', renumberDevices);
+  });
 }
 
 // ---------- wall ----------
@@ -190,9 +200,12 @@ function renderDevice(d, doc) {
     typeFields = `<label>Port / jack number <input id="ins-port" value="${esc(d.port)}" placeholder="e.g. 12 or A3"></label>`;
   }
   el.innerHTML = `
-    <h3>${DEVICE_NAMES[d.type]}</h3>
+    <h3 class="dev-head">${DEVICE_NAMES[d.type]} <span class="dev-code">${esc(deviceCode(doc, d))}</span></h3>
     <p class="meta">${room ? `In <b>${esc(room.name)}</b>` : 'Not inside any area'} · ${d.wallId ? 'on a wall' : 'free-standing'}</p>
-    <label>Type <select id="ins-type">${named(DEVICE_TYPES, DEVICE_NAMES, d.type)}</select></label>
+    <div class="field-row">
+      <label>Number <input id="ins-num" value="${esc(d.num)}" title="Type letter + floor + sequence, e.g. R103. The breaker part (M7-) is added automatically."></label>
+      <label>Type <select id="ins-type">${named(DEVICE_TYPES, DEVICE_NAMES, d.type)}</select></label>
+    </div>
     ${typeFields}
     <label>Label <input id="ins-label" value="${esc(d.label)}" placeholder="${LABEL_HINTS[d.type]}"></label>
     <label>Notes <textarea id="ins-notes" placeholder="Anything worth remembering — box location, wire color, tested on…">${esc(d.notes)}</textarea></label>
@@ -200,7 +213,13 @@ function renderDevice(d, doc) {
     ${circuitFields(doc, d)}
     ${deleteBtn}`;
   const edit = fn => doc2 => fn(doc2.devices.find(x => x.id === d.id));
-  bind('#ins-type', 'Change device type', (doc2, v) => edit(x => { x.type = v; normalizeDevice(x); })(doc2), { rerender: true });
+  bind('#ins-type', 'Change device type', (doc2, v) => edit(x => { x.type = v; normalizeDevice(x); x.num = nextDeviceNum(doc2, v, x.floorId); })(doc2), { rerender: true });
+  bind('#ins-num', 'Renumber device', (doc2, v, input) => {
+    const num = v.trim().toUpperCase();
+    const clash = doc2.devices.find(x => x.num === num && x.id !== d.id);
+    if (!num || clash) { status(clash ? `${num} is already used by another ${DEVICE_NAMES[clash.type].toLowerCase()}.` : 'A device needs a number.', true); input.value = d.num; return; }
+    edit(x => { x.num = num; })(doc2);
+  }, { rerender: true });
   bind('#ins-gfci', 'Toggle GFCI', (doc2, v, input) => edit(x => { x.gfci = input.checked; })(doc2));
   bind('#ins-afci', 'Toggle AFCI', (doc2, v, input) => edit(x => { x.afci = input.checked; })(doc2));
   bind('#ins-switchkind', 'Change switch type', (doc2, v) => edit(x => { x.switchKind = v; })(doc2));

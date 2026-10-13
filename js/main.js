@@ -8,7 +8,7 @@ import { renderInspector } from './ui/inspector.js';
 import { status, notify } from './ui/status.js';
 import './tools/index.js';
 import './ui/toolrail.js';
-import './ui/displaybar.js';
+import './ui/plantoolbar.js';
 import './ui/panels.js';
 
 const $ = sel => document.querySelector(sel);
@@ -26,19 +26,7 @@ function renderTopbar() {
   $('#btn-redo').title = store.canRedo() ? `Redo ${store.redoLabel()} (⇧⌘Z)` : 'Redo (⇧⌘Z)';
   $('#empty-state').hidden = !!doc;
 
-  const tabs = $('#floor-tabs');
-  tabs.innerHTML = '';
-  for (const f of doc?.floors.toSorted((a, b) => a.order - b.order) ?? []) {
-    const b = document.createElement('button');
-    b.textContent = f.name;
-    b.classList.toggle('active', f.id === view.floorId);
-    b.onclick = () => setView({ floorId: f.id, selection: [] });
-    tabs.append(b);
-  }
   document.querySelectorAll('#view-switch button').forEach(b => b.classList.toggle('active', b.dataset.view === view.mode));
-  // Floor tabs and the ghost toggle only mean something on the plan.
-  tabs.hidden = view.mode !== 'plan';
-  $('#ghost-floor').parentElement.hidden = view.mode !== 'plan';
 }
 
 function renderAll() {
@@ -136,7 +124,6 @@ document.addEventListener('click', () => fileMenu.classList.remove('open'));
 fileMenu.querySelectorAll('[data-cmd]').forEach(b => b.addEventListener('click', () => { fileMenu.classList.remove('open'); run(b.dataset.cmd); }));
 
 document.querySelectorAll('#view-switch button').forEach(b => b.addEventListener('click', () => setView({ mode: b.dataset.view })));
-$('#ghost-floor').addEventListener('change', e => setView({ ghost: e.target.checked }));
 $('#btn-undo').addEventListener('click', () => store.undo());
 $('#btn-redo').addEventListener('click', () => store.redo());
 

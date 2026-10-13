@@ -17,7 +17,8 @@
     import { newHouse, migrate, validate, slotsOf, slotRow, slotSide, SCHEMA_VERSION } from '../js/model.js';
     import * as store from '../js/store.js';
     import { projectOnSegment, pointInPolygon, polygonArea, labelPoint, snapAngle, snapToGrid } from '../js/geometry.js';
-    import { deleteIds, findById, areaAt, normalizeDevice, isWallMounted, slotProblem, breakerName, circuitStats, unassignedDevices, nextColor, assignableBreakers, PALETTE } from '../js/model.js';
+    import { deleteIds, findById, areaAt, normalizeDevice, isWallMounted, slotProblem, breakerName, circuitStats, unassignedDevices, nextColor, assignableBreakers, PALETTE,
+      nextDeviceNum, deviceCode, renumberDevices, breakerCode, nextPanelCode, parseNum } from '../js/model.js';
 
     const out = document.getElementById('out');
     let pass = 0, fail = 0;
@@ -167,6 +168,45 @@
       const d = newHouse();
       d.devices.push(normalizeDevice({ id: 'd1', type: 'outlet' }), normalizeDevice({ id: 'd2', type: 'ethernet' }));
       eq(unassignedDevices(d).map(x => x.id), ['d1']);
+    });
+
+    // device numbers & schema v2
+    test('nextDeviceNum: type letter + floor + sequence', () => {
+      const d = newHouse();
+      d.devices.push({ id: 'a', type: 'outlet', floorId: 'F1', num: 'R101' }, { id: 'b', type: 'outlet', floorId: 'F1', num: 'R107' }, { id: 'c', type: 'outlet', floorId: 'F2', num: 'R201' });
+      eq([nextDeviceNum(d, 'outlet', 'F1'), nextDeviceNum(d, 'outlet', 'F2'), nextDeviceNum(d, 'light', 'F1'), nextDeviceNum(d, 'cable', 'F2')], ['R108', 'R202', 'L101', 'TV201']);
+    });
+    test('deviceCode adds panel code + first slot', () => {
+      const d = newHouse();
+      d.breakers.push({ id: 'b3', panelId: 'p_main', position: 3, poles: 2, amps: 50 });
+      d.devices.push({ id: 'x', type: 'receptacle240', floorId: 'F1', num: 'V101', breakerId: 'b3' }, { id: 'y', type: 'light', floorId: 'F2', num: 'L204', breakerId: null });
+      eq([deviceCode(d, d.devices[0]), deviceCode(d, d.devices[1]), breakerCode(d, d.breakers[0])], ['M3-V101', 'L204', 'M3']);
+    });
+    test('renumberDevices groups by room in reading order', () => {
+      const d = newHouse();
+      d.areas.push({ id: 'k', floorId: 'F1', name: 'Kitchen', kind: 'room', points: [{x:0,y:0},{x:100,y:0},{x:100,y:100},{x:0,y:100}] });
+      d.areas.push({ id: 'l', floorId: 'F1', name: 'Living', kind: 'room', points: [{x:100,y:0},{x:300,y:0},{x:300,y:100},{x:100,y:100}] });
+      d.devices.push({ id: 'l1', type: 'outlet', floorId: 'F1', x: 250, y: 10 }, { id: 'k2', type: 'outlet', floorId: 'F1', x: 80, y: 90 },
+        { id: 'k1', type: 'outlet', floorId: 'F1', x: 20, y: 5 }, { id: 's1', type: 'switch', floorId: 'F1', x: 150, y: 50 });
+      renumberDevices(d);
+      eq(Object.fromEntries(d.devices.map(x => [x.id, x.num])), { l1: 'R103', k2: 'R102', k1: 'R101', s1: 'S101' });
+    });
+    test('parseNum', () => eq([parseNum('TV212'), parseNum('junk')], [{ prefix: 'TV', floor: 2, seq: 12 }, null]));
+    test('nextPanelCode avoids clashes', () => eq([nextPanelCode(newHouse(), 'Garage'), nextPanelCode(newHouse(), 'Sub 2')], ['G', 'S2']));
+    test('v1 file migrates to v2 with numbers and panel codes', () => {
+      const v1 = { schemaVersion: 1, meta: { name: 'old' }, floors: newHouse().floors, walls: [], openings: [], areas: [], switchGroups: [],
+        panels: [{ id: 'p_main', name: 'Main', spaces: 30, location: '', notes: '', fedFromBreakerId: null }],
+        breakers: [{ id: 'b1', panelId: 'p_main', position: 1, poles: 1, amps: 20, label: '', notes: '', color: '#000' }],
+        devices: [{ id: 'd1', floorId: 'F1', type: 'switch', x: 0, y: 0, breakerId: 'b1', verified: true }] };
+      const { doc } = migrate(v1);
+      eq([doc.schemaVersion, doc.panels[0].code, doc.breakers[0].type, doc.devices[0].num, deviceCode(doc, doc.devices[0]), validate(doc)], [2, 'M', 'standard', 'S101', 'M1-S101', []]);
+    });
+    test('deleting a panel deletes its breakers and unassigns devices', () => {
+      const d = newHouse();
+      d.breakers.push({ id: 'b1', panelId: 'p_sub', position: 1, poles: 1, amps: 15 });
+      d.devices.push({ id: 'x', type: 'outlet', floorId: 'F1', num: 'R101', breakerId: 'b1' });
+      deleteIds(d, ['p_sub']);
+      eq([d.panels.length, d.breakers.length, d.devices[0].breakerId], [1, 0, null]);
     });
 
     // gestures

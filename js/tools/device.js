@@ -4,7 +4,7 @@
 import * as store from '../store.js';
 import { view, setView } from '../ui/viewstate.js';
 import { render, pxToWorld, deviceMarkup } from '../render/plan.js';
-import { id, DEVICE_NAMES, normalizeDevice, isWallMounted, wallLength } from '../model.js';
+import { id, DEVICE_NAMES, normalizeDevice, isWallMounted, wallLength, nextDeviceNum } from '../model.js';
 import { add, sub, scale, unit, normal, dist, projectOnSegment, snapToGrid, labelPoint, roundPt } from '../geometry.js';
 
 const WALL_REACH_IN = 18;   // how far from a wall a click still snaps onto it
@@ -75,7 +75,7 @@ export function deviceTool(type) {
 
     down(ctx) {
       const d = newDevice(type, devicePlacement(ctx.raw, type, view.deviceOpts.lightKind));
-      store.commit(`Add ${name}`, doc => { doc.devices.push(d); });
+      store.commit(`Add ${name}`, doc => { d.num = nextDeviceNum(doc, type, d.floorId); doc.devices.push(d); });
       setView({ selection: [d.id] });
     },
 

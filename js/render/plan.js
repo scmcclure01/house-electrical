@@ -6,7 +6,7 @@ import { view } from '../ui/viewstate.js';
 import { add, sub, scale as mul, unit, normal, cross, labelPoint, polygonArea, bounds } from '../geometry.js';
 import { formatLength } from '../units.js';
 import { R, symbolMarkup, deviceCenter, deviceTags, facing } from './symbols.js';
-import { LOW_VOLTAGE } from '../model.js';
+import { LOW_VOLTAGE, deviceCode } from '../model.js';
 
 export const svg = document.getElementById('plan');
 
@@ -179,6 +179,15 @@ const TAGS_MIN_SCALE = 1.6; // screen px per inch
 // Circuit display state for the current render: breaker colors and which circuit (if any) is in focus.
 let breakerColor = new Map();
 let focusId = null;
+let docRef = null;
+
+// Text next to a symbol, per the Labels setting: device code, details (flags/label/port), both, or none.
+function tagText(d) {
+  const code = d.num && docRef ? deviceCode(docRef, d) : '';
+  const details = deviceTags(d);
+  const parts = { numbers: [code], details, both: [code, ...details], none: [] }[view.tagMode] ?? [code];
+  return parts.filter(Boolean).join(' · ');
+}
 
 // How a device is emphasised under the current display mode: 'dim', 'halo', 'alert' (unassigned) or ''.
 function emphasis(d) {
@@ -203,13 +212,13 @@ export function deviceMarkup(d, extraCls = '') {
   const halo = em === 'halo' || em === 'alert' ? `<circle r="${R * 2}" class="halo${em === 'alert' ? ' halo-alert' : ''}"/>` : '';
   let out = `<g ${idAttr} class="${cls}"${color ? ` style="--c:${color}"` : ''} transform="translate(${f(c.x)} ${f(c.y)}) scale(${f(s)})">` +
     `${halo}${symbolMarkup(d)}<circle r="${R * 1.5}" class="dev-hit"/></g>`;
-  const tags = deviceTags(d);
-  if (tags.length && (camera.scale >= TAGS_MIN_SCALE || extraCls || view.selection.includes(d.id))) {
+  const tag = extraCls ? deviceTags(d).join(' · ') : tagText(d);
+  if (tag && (camera.scale >= TAGS_MIN_SCALE || extraCls || view.selection.includes(d.id))) {
     const fs = px(10);
     const u = d.wallId ? facing(d) : { x: 0, y: 1 };
     const dist = R * s * (d.wallId ? 1.6 : 1.4) + fs * 0.9;
     const p = add(c, mul(u, dist));
-    out += `<text x="${f(p.x)}" y="${f(p.y + fs * 0.35)}" font-size="${f(fs)}" class="device-tag ${extraCls}">${esc(tags.join(' · '))}</text>`;
+    out += `<text x="${f(p.x)}" y="${f(p.y + fs * 0.35)}" font-size="${f(fs)}" class="device-tag ${extraCls}">${esc(tag)}</text>`;
   }
   return out;
 }
@@ -275,6 +284,7 @@ export function render() {
   out += `<g class="layer-grid">${gridMarkup(v, doc.settings.gridIn)}</g>`;
   const floorDevices = doc.devices.filter(d => d.floorId === fl);
   breakerColor = new Map(doc.breakers.map(b => [b.id, b.color]));
+  docRef = doc;
   focusId = view.tool === 'assign' ? view.assignBreakerId : view.focusBreakerId;
   out += '<g class="layer-areas">';
   // Larger areas first so small rooms drawn inside them stay clickable.

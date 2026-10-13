@@ -42,6 +42,9 @@ with the File System Access API (Chrome/Edge only).
   R outlet · 2 240V · H hardwired · S switch · L light · C cable · E ethernet · B assign circuit ·
   F fit · Esc · Delete.
 - Device symbols scale up when zoomed out (min ~15px) and text tags hide below 1.6 px/inch.
+- Layout: row 1 = dark app bar (File, file name, Plan|Panels|Print, undo/redo); row 2 = per-view toolbar
+  (`.toolbar` with `.tb-group` / `.tb-label` / `.seg` segmented buttons). Tool options dock across the top of
+  the canvas. Nothing else floats over the drawing except the toast. Keep new controls in these places.
 - Code style: 2-space indent, single quotes, semicolons, small modules, comments only where intent isn't obvious.
 
 ## Layout
@@ -57,7 +60,8 @@ js/ui/viewstate.js  UI-only state (floor, selection, tool, display toggles)
 js/ui/inspector.js  properties panel     js/ui/toolrail.js  tool buttons, tool options, zoom controls
 js/ui/status.js     status bar + toast (status() for hints, notify() for events; errors always toast)
 js/ui/panels.js     Panels view: panel diagrams + breaker/panel editor
-js/ui/displaybar.js plan display controls: Circuits / Unassigned, "only this circuit" chip, verified key
+js/ui/plantoolbar.js second toolbar row: Floor · Show (Circuits/Unassigned) · Labels · key · Dimensions/zoom;
+                    also toggles the Panels/Print toolbar rows (panels.js fills #panels-toolbar)
 js/render/plan.js   SVG plan renderer + camera (viewBox pan/zoom), openingGeom(), deviceMarkup()
 js/render/symbols.js  electrical symbols (local frame, radius R=6"), deviceTags(); reused for rail icons/legend
 js/tools/index.js   tool registry, pointer/wheel/keyboard routing, Delete/Esc/F shortcuts
@@ -68,7 +72,7 @@ js/print/           (Phase 5)
 samples/sample-house.json   tests/index.html
 ```
 
-## Data model (schemaVersion 1)
+## Data model (schemaVersion 2)
 Top level: `schemaVersion, meta{name, modified, notes}, settings{gridIn, defaultWallIn{exterior, interior}},
 floors[], walls[], openings[], areas[], devices[], panels[], breakers[], switchGroups[]`.
 
@@ -76,16 +80,23 @@ floors[], walls[], openings[], areas[], devices[], panels[], breakers[], switchG
 - **wall** `{id, floorId, kind: exterior|interior, a{x,y}, b{x,y}, thicknessIn}`
 - **opening** `{id, wallId, kind: door|window|opening, offsetIn (from wall end a), widthIn, hinge: a|b, swing: left|right}`
 - **area** `{id, floorId, name, kind: room|garage|attic|exterior|stair, points[{x,y}], stairDir?: up|down}`
-- **device** `{id, floorId, type, x, y, rot, wallId|null, label, notes, breakerId|null, verified}` plus per-type fields:
+- **device** `{id, floorId, type, num, x, y, rot, wallId|null, label, notes, breakerId|null, verified}` plus per-type fields:
   outlet `gfci, afci`; cable/ethernet `port`; switch `switchKind: single|3way`; light `lightKind: ceiling|wall|recessed|fan`.
   Types: `outlet, receptacle240, hardwired, switch, light, cable, ethernet`. Always run `normalizeDevice()` after
   creating a device or changing its type. Wall devices: `wallId` set, `(x,y)` = point on the wall face, `rot` =
   degrees of the direction they face (away from the wall); the symbol is drawn one radius out from (x,y).
   Free devices (ceiling lights, or anything not near a wall): `wallId` null, `(x,y)` = symbol centre.
   Low-voltage drops (cable/ethernet) never get a breaker.
-- **panel** `{id, name, spaces, location, notes, fedFromBreakerId|null}` — main (~30 spaces) and one subpanel
-  fed from a 2-pole breaker in the main.
-- **breaker** `{id, panelId, position, poles: 1|2, amps, label, notes, color}`. A breaker *is* a circuit.
+- **Device numbers**: `num` is permanent = type letter + floor order digit + 2-digit sequence (R103).
+  Letters: R outlet · V 240V · E hardwired · S switch · L light/fan · TV cable · D data. The full code shown
+  everywhere is `deviceCode()` = breaker code + num (M7-R103; breaker code = panel code + first slot), or just
+  num when unassigned. New devices get `nextDeviceNum()`; changing type assigns a new num; numbers must be
+  unique (validate + inspector check); "Renumber all devices…" (house inspector) runs `renumberDevices()`.
+- **panel** `{id, name, code, spaces, location, notes, brand, model, mainAmps|null, busAmps|null, fedFromBreakerId|null}`.
+  Any number of panels; `fedFromBreakerId` null = main (utility-fed), else a 2-pole breaker in another panel
+  (loops prevented in the UI via `isDownstream()` in panels.js). `code` = 1–3 chars, unique (M, S, S2…).
+- **breaker** `{id, panelId, position, poles: 1|2, amps, label, notes, color, type: standard|gfci|afci|dual, model}`.
+  A breaker *is* a circuit.
   Helpers in model.js: `slotProblem()` (fit/overlap check — use before any position/poles change),
   `breakerName()` ("Main 3/5"), `breakerTitle()`, `assignableBreakers()` (excludes subpanel feeders),
   `circuitStats()` (devices/verified/byType/rooms per breaker), `unassignedDevices()`, `nextColor()`.

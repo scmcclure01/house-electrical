@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "meta": {
     "name": "Sample House",
     "modified": "2026-10-11T12:00:00.000Z",
@@ -900,7 +900,8 @@
       "breakerId": "b_m07",
       "verified": false,
       "gfci": false,
-      "afci": true
+      "afci": true,
+      "num": "R108"
     },
     {
       "id": "d_s02",
@@ -915,7 +916,8 @@
       "breakerId": "b_m07",
       "verified": false,
       "gfci": false,
-      "afci": true
+      "afci": true,
+      "num": "R109"
     },
     {
       "id": "d_s03",
@@ -930,7 +932,8 @@
       "breakerId": "b_m07",
       "verified": false,
       "gfci": false,
-      "afci": true
+      "afci": true,
+      "num": "R110"
     },
     {
       "id": "d_s04",
@@ -945,7 +948,8 @@
       "breakerId": "b_m07",
       "verified": false,
       "gfci": false,
-      "afci": true
+      "afci": true,
+      "num": "R111"
     },
     {
       "id": "d_s05",
@@ -959,7 +963,8 @@
       "notes": "",
       "breakerId": "b_m08",
       "verified": false,
-      "switchKind": "single"
+      "switchKind": "single",
+      "num": "S103"
     },
     {
       "id": "d_s06",
@@ -974,7 +979,8 @@
       "breakerId": null,
       "verified": false,
       "gfci": false,
-      "afci": true
+      "afci": true,
+      "num": "R112"
     },
     {
       "id": "d_s07",
@@ -988,7 +994,8 @@
       "notes": "",
       "breakerId": "b_m08",
       "verified": false,
-      "lightKind": "fan"
+      "lightKind": "fan",
+      "num": "L108"
     },
     {
       "id": "d_s08",
@@ -1002,7 +1009,8 @@
       "notes": "",
       "breakerId": null,
       "verified": false,
-      "port": "1"
+      "port": "1",
+      "num": "TV101"
     },
     {
       "id": "d_s09",
@@ -1016,7 +1024,8 @@
       "notes": "",
       "breakerId": null,
       "verified": false,
-      "port": "1"
+      "port": "1",
+      "num": "D101"
     },
     {
       "id": "d_s10",
@@ -1031,7 +1040,8 @@
       "breakerId": "b_m01",
       "verified": true,
       "gfci": true,
-      "afci": false
+      "afci": false,
+      "num": "R102"
     },
     {
       "id": "d_s11",
@@ -1046,7 +1056,8 @@
       "breakerId": "b_m01",
       "verified": true,
       "gfci": true,
-      "afci": false
+      "afci": false,
+      "num": "R103"
     },
     {
       "id": "d_s12",
@@ -1061,7 +1072,8 @@
       "breakerId": "b_m01",
       "verified": true,
       "gfci": true,
-      "afci": false
+      "afci": false,
+      "num": "R104"
     },
     {
       "id": "d_s13",
@@ -1076,7 +1088,8 @@
       "breakerId": "b_m02",
       "verified": true,
       "gfci": false,
-      "afci": false
+      "afci": false,
+      "num": "R105"
     },
     {
       "id": "d_s14",
@@ -1089,7 +1102,8 @@
       "label": "Range",
       "notes": "",
       "breakerId": "b_m03",
-      "verified": true
+      "verified": true,
+      "num": "V101"
     },
     {
       "id": "d_s15",
@@ -1102,7 +1116,8 @@
       "label": "Dishwasher",
       "notes": "",
       "breakerId": "b_m04",
-      "verified": true
+      "verified": true,
+      "num": "E101"
     },
     {
       "id": "d_s16",
@@ -1116,7 +1131,8 @@
       "notes": "",
       "breakerId": "b_m06",
       "verified": true,
-      "switchKind": "single"
+      "switchKind": "single",
+      "num": "S101"
     },
     {
       "id": "d_s17",
@@ -1130,7 +1146,8 @@
       "notes": "",
       "breakerId": "b_m06",
       "verified": true,
-      "lightKind": "recessed"
+      "lightKind": "recessed",
+      "num": "L102"
     },
     {
       "id": "d_s18",
@@ -1144,7 +1161,8 @@
       "notes": "",
       "breakerId": "b_m06",
       "verified": true,
-      "lightKind": "recessed"
+      "lightKind": "recessed",
+      "num": "L103"
     },
     {
       "id": "d_s19",
@@ -1158,7 +1176,8 @@
       "notes": "",
       "breakerId": "b_m06",
       "verified": true,
-      "lightKind": "recessed"
+      "lightKind": "recessed",
+      "num": "L104"
     },
     {
       "id": "d_s20",
@@ -1172,7 +1191,8 @@
       "notes": "",
       "breakerId": "b_m06",
       "verified": true,
-      "lightKind": "recessed"
+      "lightKind": "recessed",
+      "num": "L105"
     },
     {
       "id": "d_s21",
@@ -1186,7 +1206,8 @@
       "notes": "",
       "breakerId": "b_m06",
       "verified": true,
-      "lightKind": "wall"
+      "lightKind": "wall",
+      "num": "L101"
     },
     {
       "id": "d_s22",
@@ -1201,7 +1222,8 @@
       "breakerId": "b_m10",
       "verified": false,
       "gfci": true,
-      "afci": false
+      "afci": false,
+      "num": "R101"
     },
     {
       "id": "d_s23",
@@ -1215,7 +1237,8 @@
       "notes": "",
       "breakerId": "b_m06",
       "verified": true,
-      "lightKind": "ceiling"
+      "lightKind": "ceiling",
+      "num": "L109"
     },
     {
       "id": "d_s24",
@@ -1230,7 +1253,8 @@
       "breakerId": "b_m07",
       "verified": false,
       "gfci": false,
-      "afci": true
+      "afci": true,
+      "num": "R113"
     },
     {
       "id": "d_s25",
@@ -1245,7 +1269,8 @@
       "breakerId": "b_m07",
       "verified": false,
       "gfci": false,
-      "afci": true
+      "afci": true,
+      "num": "R114"
     },
     {
       "id": "d_s26",
@@ -1259,7 +1284,8 @@
       "notes": "",
       "breakerId": "b_m06",
       "verified": true,
-      "switchKind": "single"
+      "switchKind": "single",
+      "num": "S104"
     },
     {
       "id": "d_s27",
@@ -1274,7 +1300,8 @@
       "breakerId": "b_m09",
       "verified": true,
       "gfci": true,
-      "afci": false
+      "afci": false,
+      "num": "R115"
     },
     {
       "id": "d_s28",
@@ -1288,7 +1315,8 @@
       "notes": "",
       "breakerId": "b_m09",
       "verified": true,
-      "lightKind": "wall"
+      "lightKind": "wall",
+      "num": "L111"
     },
     {
       "id": "d_s29",
@@ -1302,7 +1330,8 @@
       "notes": "",
       "breakerId": "b_m09",
       "verified": true,
-      "switchKind": "single"
+      "switchKind": "single",
+      "num": "S106"
     },
     {
       "id": "d_s30",
@@ -1315,7 +1344,8 @@
       "label": "Exhaust fan",
       "notes": "",
       "breakerId": "b_m09",
-      "verified": true
+      "verified": true,
+      "num": "E104"
     },
     {
       "id": "d_s31",
@@ -1329,7 +1359,8 @@
       "notes": "",
       "breakerId": "b_m08",
       "verified": false,
-      "switchKind": "3way"
+      "switchKind": "3way",
+      "num": "S105"
     },
     {
       "id": "d_s32",
@@ -1343,7 +1374,8 @@
       "notes": "",
       "breakerId": "b_m08",
       "verified": false,
-      "lightKind": "ceiling"
+      "lightKind": "ceiling",
+      "num": "L110"
     },
     {
       "id": "d_s33",
@@ -1358,7 +1390,8 @@
       "breakerId": "b_m10",
       "verified": false,
       "gfci": true,
-      "afci": false
+      "afci": false,
+      "num": "R107"
     },
     {
       "id": "d_s34",
@@ -1373,7 +1406,8 @@
       "breakerId": "b_m10",
       "verified": false,
       "gfci": true,
-      "afci": false
+      "afci": false,
+      "num": "R106"
     },
     {
       "id": "d_s35",
@@ -1386,7 +1420,8 @@
       "label": "EV charger",
       "notes": "",
       "breakerId": "b_m12",
-      "verified": false
+      "verified": false,
+      "num": "V102"
     },
     {
       "id": "d_s36",
@@ -1399,7 +1434,8 @@
       "label": "Water heater",
       "notes": "",
       "breakerId": "b_m11",
-      "verified": true
+      "verified": true,
+      "num": "E102"
     },
     {
       "id": "d_s37",
@@ -1412,7 +1448,8 @@
       "label": "Door opener",
       "notes": "",
       "breakerId": "b_m10",
-      "verified": false
+      "verified": false,
+      "num": "E103"
     },
     {
       "id": "d_s38",
@@ -1426,7 +1463,8 @@
       "notes": "",
       "breakerId": "b_m10",
       "verified": false,
-      "lightKind": "ceiling"
+      "lightKind": "ceiling",
+      "num": "L106"
     },
     {
       "id": "d_s39",
@@ -1440,7 +1478,8 @@
       "notes": "",
       "breakerId": "b_m10",
       "verified": false,
-      "lightKind": "ceiling"
+      "lightKind": "ceiling",
+      "num": "L107"
     },
     {
       "id": "d_s40",
@@ -1454,7 +1493,8 @@
       "notes": "",
       "breakerId": "b_m10",
       "verified": false,
-      "switchKind": "single"
+      "switchKind": "single",
+      "num": "S102"
     },
     {
       "id": "d_s41",
@@ -1469,7 +1509,8 @@
       "breakerId": "b_s01",
       "verified": true,
       "gfci": false,
-      "afci": true
+      "afci": true,
+      "num": "R203"
     },
     {
       "id": "d_s42",
@@ -1484,7 +1525,8 @@
       "breakerId": "b_s01",
       "verified": true,
       "gfci": false,
-      "afci": true
+      "afci": true,
+      "num": "R202"
     },
     {
       "id": "d_s43",
@@ -1499,7 +1541,8 @@
       "breakerId": "b_s01",
       "verified": true,
       "gfci": false,
-      "afci": true
+      "afci": true,
+      "num": "R204"
     },
     {
       "id": "d_s44",
@@ -1513,7 +1556,8 @@
       "notes": "",
       "breakerId": "b_s01",
       "verified": true,
-      "switchKind": "single"
+      "switchKind": "single",
+      "num": "S202"
     },
     {
       "id": "d_s45",
@@ -1527,7 +1571,8 @@
       "notes": "",
       "breakerId": "b_s01",
       "verified": true,
-      "lightKind": "ceiling"
+      "lightKind": "ceiling",
+      "num": "L202"
     },
     {
       "id": "d_s46",
@@ -1541,7 +1586,8 @@
       "notes": "",
       "breakerId": null,
       "verified": false,
-      "port": "4"
+      "port": "4",
+      "num": "D201"
     },
     {
       "id": "d_s47",
@@ -1555,7 +1601,8 @@
       "notes": "",
       "breakerId": "b_s04",
       "verified": false,
-      "switchKind": "single"
+      "switchKind": "single",
+      "num": "S201"
     },
     {
       "id": "d_s48",
@@ -1570,7 +1617,8 @@
       "breakerId": "b_s03",
       "verified": true,
       "gfci": true,
-      "afci": false
+      "afci": false,
+      "num": "R201"
     },
     {
       "id": "d_s49",
@@ -1584,7 +1632,8 @@
       "notes": "",
       "breakerId": "b_s04",
       "verified": false,
-      "lightKind": "recessed"
+      "lightKind": "recessed",
+      "num": "L201"
     },
     {
       "id": "d_s50",
@@ -1597,7 +1646,8 @@
       "label": "Exhaust fan",
       "notes": "",
       "breakerId": "b_s04",
-      "verified": false
+      "verified": false,
+      "num": "E201"
     },
     {
       "id": "d_s51",
@@ -1611,7 +1661,8 @@
       "notes": "",
       "breakerId": "b_m08",
       "verified": false,
-      "switchKind": "3way"
+      "switchKind": "3way",
+      "num": "S204"
     },
     {
       "id": "d_s52",
@@ -1625,7 +1676,8 @@
       "notes": "",
       "breakerId": "b_s04",
       "verified": false,
-      "lightKind": "ceiling"
+      "lightKind": "ceiling",
+      "num": "L206"
     },
     {
       "id": "d_s53",
@@ -1639,7 +1691,8 @@
       "notes": "",
       "breakerId": "b_s04",
       "verified": false,
-      "lightKind": "ceiling"
+      "lightKind": "ceiling",
+      "num": "L205"
     },
     {
       "id": "d_s54",
@@ -1654,7 +1707,8 @@
       "breakerId": "b_s02",
       "verified": false,
       "gfci": false,
-      "afci": true
+      "afci": true,
+      "num": "R205"
     },
     {
       "id": "d_s55",
@@ -1669,7 +1723,8 @@
       "breakerId": "b_s02",
       "verified": false,
       "gfci": false,
-      "afci": true
+      "afci": true,
+      "num": "R206"
     },
     {
       "id": "d_s56",
@@ -1684,7 +1739,8 @@
       "breakerId": "b_s02",
       "verified": false,
       "gfci": false,
-      "afci": true
+      "afci": true,
+      "num": "R208"
     },
     {
       "id": "d_s57",
@@ -1699,7 +1755,8 @@
       "breakerId": "b_s02",
       "verified": false,
       "gfci": false,
-      "afci": true
+      "afci": true,
+      "num": "R207"
     },
     {
       "id": "d_s58",
@@ -1713,7 +1770,8 @@
       "notes": "",
       "breakerId": "b_s02",
       "verified": false,
-      "switchKind": "single"
+      "switchKind": "single",
+      "num": "S203"
     },
     {
       "id": "d_s59",
@@ -1727,7 +1785,8 @@
       "notes": "",
       "breakerId": "b_s02",
       "verified": false,
-      "lightKind": "fan"
+      "lightKind": "fan",
+      "num": "L203"
     },
     {
       "id": "d_s60",
@@ -1741,7 +1800,8 @@
       "notes": "",
       "breakerId": null,
       "verified": false,
-      "port": "2"
+      "port": "2",
+      "num": "TV201"
     },
     {
       "id": "d_s61",
@@ -1755,7 +1815,8 @@
       "notes": "",
       "breakerId": null,
       "verified": false,
-      "port": "2"
+      "port": "2",
+      "num": "D202"
     },
     {
       "id": "d_s62",
@@ -1769,7 +1830,8 @@
       "notes": "",
       "breakerId": null,
       "verified": false,
-      "switchKind": "single"
+      "switchKind": "single",
+      "num": "S206"
     },
     {
       "id": "d_s63",
@@ -1784,7 +1846,8 @@
       "breakerId": "b_s03",
       "verified": true,
       "gfci": true,
-      "afci": false
+      "afci": false,
+      "num": "R209"
     },
     {
       "id": "d_s64",
@@ -1799,7 +1862,8 @@
       "breakerId": "b_s03",
       "verified": true,
       "gfci": true,
-      "afci": false
+      "afci": false,
+      "num": "R210"
     },
     {
       "id": "d_s65",
@@ -1813,7 +1877,8 @@
       "notes": "",
       "breakerId": null,
       "verified": false,
-      "lightKind": "recessed"
+      "lightKind": "recessed",
+      "num": "L208"
     },
     {
       "id": "d_s66",
@@ -1827,7 +1892,8 @@
       "notes": "",
       "breakerId": null,
       "verified": false,
-      "lightKind": "recessed"
+      "lightKind": "recessed",
+      "num": "L209"
     },
     {
       "id": "d_s67",
@@ -1841,7 +1907,8 @@
       "notes": "",
       "breakerId": null,
       "verified": false,
-      "switchKind": "single"
+      "switchKind": "single",
+      "num": "S205"
     },
     {
       "id": "d_s68",
@@ -1855,7 +1922,8 @@
       "notes": "",
       "breakerId": null,
       "verified": false,
-      "lightKind": "ceiling"
+      "lightKind": "ceiling",
+      "num": "L207"
     },
     {
       "id": "d_s69",
@@ -1868,7 +1936,8 @@
       "label": "Attic fan",
       "notes": "",
       "breakerId": "b_s05",
-      "verified": false
+      "verified": false,
+      "num": "E202"
     },
     {
       "id": "d_s70",
@@ -1882,7 +1951,8 @@
       "notes": "",
       "breakerId": null,
       "verified": false,
-      "lightKind": "ceiling"
+      "lightKind": "ceiling",
+      "num": "L204"
     }
   ],
   "panels": [
@@ -1892,7 +1962,12 @@
       "spaces": 30,
       "location": "Garage, east wall",
       "notes": "",
-      "fedFromBreakerId": null
+      "fedFromBreakerId": null,
+      "code": "M",
+      "brand": "Square D",
+      "model": "HOM3060M200PC",
+      "mainAmps": 200,
+      "busAmps": 225
     },
     {
       "id": "p_sub",
@@ -1900,7 +1975,12 @@
       "spaces": 20,
       "location": "Basement stair",
       "notes": "",
-      "fedFromBreakerId": "b_m15"
+      "fedFromBreakerId": "b_m15",
+      "code": "S",
+      "brand": "Square D",
+      "model": "HOM2040L125PC",
+      "mainAmps": null,
+      "busAmps": 125
     }
   ],
   "breakers": [
@@ -1912,7 +1992,9 @@
       "amps": 20,
       "label": "Kitchen counter",
       "notes": "",
-      "color": "#e6194b"
+      "color": "#e6194b",
+      "type": "dual",
+      "model": "Square D HOM120PDF"
     },
     {
       "id": "b_m02",
@@ -1922,7 +2004,9 @@
       "amps": 20,
       "label": "Refrigerator",
       "notes": "",
-      "color": "#3cb44b"
+      "color": "#3cb44b",
+      "type": "standard",
+      "model": "Square D HOM120"
     },
     {
       "id": "b_m03",
@@ -1932,7 +2016,9 @@
       "amps": 50,
       "label": "Range",
       "notes": "",
-      "color": "#4363d8"
+      "color": "#4363d8",
+      "type": "standard",
+      "model": "Square D HOM250"
     },
     {
       "id": "b_m04",
@@ -1942,7 +2028,9 @@
       "amps": 20,
       "label": "Dishwasher",
       "notes": "",
-      "color": "#f58231"
+      "color": "#f58231",
+      "type": "standard",
+      "model": "Square D HOM120"
     },
     {
       "id": "b_m06",
@@ -1952,7 +2040,9 @@
       "amps": 15,
       "label": "Kitchen & dining lights",
       "notes": "",
-      "color": "#911eb4"
+      "color": "#911eb4",
+      "type": "standard",
+      "model": "Square D HOM115"
     },
     {
       "id": "b_m07",
@@ -1962,7 +2052,9 @@
       "amps": 15,
       "label": "Living & dining outlets",
       "notes": "AFCI breaker",
-      "color": "#1aa3a3"
+      "color": "#1aa3a3",
+      "type": "afci",
+      "model": "Square D HOM115PCAFI"
     },
     {
       "id": "b_m08",
@@ -1972,7 +2064,9 @@
       "amps": 15,
       "label": "Living room & stair lights",
       "notes": "",
-      "color": "#f032e6"
+      "color": "#f032e6",
+      "type": "standard",
+      "model": "Square D HOM115"
     },
     {
       "id": "b_m09",
@@ -1982,7 +2076,9 @@
       "amps": 20,
       "label": "Half bath",
       "notes": "",
-      "color": "#9a6324"
+      "color": "#9a6324",
+      "type": "gfci",
+      "model": "Square D HOM120GFI"
     },
     {
       "id": "b_m10",
@@ -1992,7 +2088,9 @@
       "amps": 20,
       "label": "Garage & patio outlets",
       "notes": "",
-      "color": "#7a7a00"
+      "color": "#7a7a00",
+      "type": "gfci",
+      "model": "Square D HOM120GFI"
     },
     {
       "id": "b_m11",
@@ -2002,7 +2100,9 @@
       "amps": 30,
       "label": "Water heater",
       "notes": "",
-      "color": "#000075"
+      "color": "#000075",
+      "type": "standard",
+      "model": "Square D HOM230"
     },
     {
       "id": "b_m12",
@@ -2012,7 +2112,9 @@
       "amps": 50,
       "label": "EV charger",
       "notes": "",
-      "color": "#d4a000"
+      "color": "#d4a000",
+      "type": "standard",
+      "model": "Square D HOM250"
     },
     {
       "id": "b_m15",
@@ -2022,7 +2124,9 @@
       "amps": 60,
       "label": "Sub panel feed",
       "notes": "",
-      "color": "#1b9e77"
+      "color": "#1b9e77",
+      "type": "standard",
+      "model": "Square D HOM260"
     },
     {
       "id": "b_s01",
@@ -2032,7 +2136,9 @@
       "amps": 15,
       "label": "Bedroom 2",
       "notes": "",
-      "color": "#d95f02"
+      "color": "#d95f02",
+      "type": "afci",
+      "model": ""
     },
     {
       "id": "b_s02",
@@ -2042,7 +2148,9 @@
       "amps": 15,
       "label": "Primary bedroom",
       "notes": "",
-      "color": "#7570b3"
+      "color": "#7570b3",
+      "type": "afci",
+      "model": ""
     },
     {
       "id": "b_s03",
@@ -2052,7 +2160,9 @@
       "amps": 20,
       "label": "Upstairs bath outlets",
       "notes": "",
-      "color": "#c51b7d"
+      "color": "#c51b7d",
+      "type": "standard",
+      "model": "Square D HOM120"
     },
     {
       "id": "b_s04",
@@ -2062,7 +2172,9 @@
       "amps": 15,
       "label": "Hall & bath lights",
       "notes": "",
-      "color": "#66a61e"
+      "color": "#66a61e",
+      "type": "standard",
+      "model": "Square D HOM115"
     },
     {
       "id": "b_s05",
@@ -2072,7 +2184,9 @@
       "amps": 15,
       "label": "Attic fan",
       "notes": "",
-      "color": "#e6194b"
+      "color": "#e6194b",
+      "type": "standard",
+      "model": "Square D HOM115"
     }
   ],
   "switchGroups": []
