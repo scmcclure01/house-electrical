@@ -13,6 +13,7 @@ import { wallTool } from './wall.js';
 import { areaTool } from './area.js';
 import { openingTool } from './opening.js';
 import { deviceTool } from './device.js';
+import { assignTool } from './assign.js';
 import { DEVICE_TYPES } from '../model.js';
 
 export const TOOLS = {
@@ -25,6 +26,7 @@ export const TOOLS = {
   window: openingTool('window'),
   opening: openingTool('opening'),
   ...Object.fromEntries(DEVICE_TYPES.map(t => [t, deviceTool(t)])),
+  assign: assignTool,
 };
 
 const current = () => TOOLS[view.tool] ?? selectTool;

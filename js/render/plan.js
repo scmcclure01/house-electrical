@@ -6,6 +6,7 @@ import { view } from '../ui/viewstate.js';
 import { add, sub, scale as mul, unit, normal, cross, labelPoint, polygonArea, bounds } from '../geometry.js';
 import { formatLength } from '../units.js';
 import { R, symbolMarkup, deviceCenter, deviceTags, facing } from './symbols.js';
+import { LOW_VOLTAGE } from '../model.js';
 
 export const svg = document.getElementById('plan');
 
@@ -175,13 +176,33 @@ export const symScale = () => Math.max(1, px(7.5) / R);
 // Text tags only once zoomed in enough to read them without overlap (selected devices always show theirs).
 const TAGS_MIN_SCALE = 1.6; // screen px per inch
 
+// Circuit display state for the current render: breaker colors and which circuit (if any) is in focus.
+let breakerColor = new Map();
+let focusId = null;
+
+// How a device is emphasised under the current display mode: 'dim', 'halo', 'alert' (unassigned) or ''.
+function emphasis(d) {
+  const lowV = LOW_VOLTAGE.has(d.type);
+  if (view.display === 'unassigned') return lowV || d.breakerId ? 'dim' : 'alert';
+  if (!focusId) return '';
+  if (d.breakerId === focusId) return 'halo';
+  // While assigning, unassigned devices stay fully visible (they're the ones left to do).
+  return view.tool === 'assign' && !d.breakerId && !lowV ? '' : 'dim';
+}
+
 // extraCls: e.g. 'preview' for a tool's ghost symbol (no data-id, so it isn't clickable).
 export function deviceMarkup(d, extraCls = '') {
   const s = symScale();
   const c = deviceCenter(d, s);
   const idAttr = extraCls ? '' : `data-id="${d.id}"`;
-  let out = `<g ${idAttr} class="device device-${d.type} ${extraCls}" transform="translate(${f(c.x)} ${f(c.y)}) scale(${f(s)})">` +
-    `${symbolMarkup(d)}<circle r="${R * 1.5}" class="dev-hit"/></g>`;
+  const lowV = LOW_VOLTAGE.has(d.type);
+  const color = d.breakerId && breakerColor.get(d.breakerId);
+  const em = extraCls ? '' : emphasis(d);
+  const cls = ['device', `device-${d.type}`, extraCls, color ? 'assigned' : '', lowV ? 'lowvolt' : d.verified ? 'verified' : 'unverified', em === 'dim' ? 'dim' : '']
+    .filter(Boolean).join(' ');
+  const halo = em === 'halo' || em === 'alert' ? `<circle r="${R * 2}" class="halo${em === 'alert' ? ' halo-alert' : ''}"/>` : '';
+  let out = `<g ${idAttr} class="${cls}"${color ? ` style="--c:${color}"` : ''} transform="translate(${f(c.x)} ${f(c.y)}) scale(${f(s)})">` +
+    `${halo}${symbolMarkup(d)}<circle r="${R * 1.5}" class="dev-hit"/></g>`;
   const tags = deviceTags(d);
   if (tags.length && (camera.scale >= TAGS_MIN_SCALE || extraCls || view.selection.includes(d.id))) {
     const fs = px(10);
@@ -253,6 +274,8 @@ export function render() {
   </defs>`;
   out += `<g class="layer-grid">${gridMarkup(v, doc.settings.gridIn)}</g>`;
   const floorDevices = doc.devices.filter(d => d.floorId === fl);
+  breakerColor = new Map(doc.breakers.map(b => [b.id, b.color]));
+  focusId = view.tool === 'assign' ? view.assignBreakerId : view.focusBreakerId;
   out += '<g class="layer-areas">';
   // Larger areas first so small rooms drawn inside them stay clickable.
   for (const a of doc.areas.filter(a => a.floorId === fl).sort((p, q) => Math.abs(polygonArea(q.points)) - Math.abs(polygonArea(p.points)))) out += areaMarkup(a, false, floorDevices);

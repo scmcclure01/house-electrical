@@ -4,7 +4,7 @@
 import { getDoc, commit, isReadOnly } from '../store.js';
 import { view, setView } from './viewstate.js';
 import { findById, deleteIds, wallLength, areaAt, normalizeDevice, WALL_KINDS, AREA_KINDS, OPENING_KINDS,
-  DEVICE_TYPES, DEVICE_NAMES, LIGHT_KINDS } from '../model.js';
+  DEVICE_TYPES, DEVICE_NAMES, LIGHT_KINDS, LOW_VOLTAGE, assignableBreakers, breakerTitle } from '../model.js';
 import { add, sub, scale, unit, same, polygonArea } from '../geometry.js';
 import { parseLength, formatLength } from '../units.js';
 import { status } from './status.js';
@@ -146,6 +146,28 @@ function renderArea(a) {
   bindDelete([a.id]);
 }
 
+// ---------- circuit picker (shared by single and multi device forms) ----------
+function circuitOptions(doc, value, { mixed = false } = {}) {
+  const groups = new Map();
+  for (const b of assignableBreakers(doc)) {
+    const panel = doc.panels.find(p => p.id === b.panelId);
+    if (!groups.has(panel.name)) groups.set(panel.name, []);
+    groups.get(panel.name).push(`<option value="${b.id}"${b.id === value ? ' selected' : ''}>${esc(breakerTitle(doc, b))}</option>`);
+  }
+  return (mixed ? '<option value="__mixed" selected>— mixed —</option>' : '') +
+    `<option value=""${!value && !mixed ? ' selected' : ''}>— not assigned —</option>` +
+    [...groups].map(([name, opts]) => `<optgroup label="${esc(name)} panel">${opts.join('')}</optgroup>`).join('');
+}
+
+function circuitFields(doc, d) {
+  if (LOW_VOLTAGE.has(d.type)) return '<p class="meta">Low-voltage drop — not on a breaker.</p>';
+  if (!doc.breakers.length) return '<p class="meta">No breakers yet. Add them in the <b>Panels</b> view, then assign devices here or with the Assign tool (B).</p>';
+  const b = d.breakerId && doc.breakers.find(x => x.id === d.breakerId);
+  return `
+    <label>Circuit <span class="circuit-row">${b ? `<span class="b-swatch" style="--c:${b.color}"></span>` : ''}<select id="ins-breaker">${circuitOptions(doc, d.breakerId)}</select></span></label>
+    <div class="check-row"><label title="Confirmed by switching the breaker off and testing"><input type="checkbox" id="ins-verified"${d.verified ? ' checked' : ''}${d.breakerId ? '' : ' disabled'}> Verified by testing</label></div>`;
+}
+
 // ---------- device ----------
 const LABEL_HINTS = {
   outlet: 'e.g. Counter left', receptacle240: 'e.g. Dryer', hardwired: 'e.g. Dishwasher, Furnace',
@@ -175,7 +197,7 @@ function renderDevice(d, doc) {
     <label>Label <input id="ins-label" value="${esc(d.label)}" placeholder="${LABEL_HINTS[d.type]}"></label>
     <label>Notes <textarea id="ins-notes" placeholder="Anything worth remembering — box location, wire color, tested on…">${esc(d.notes)}</textarea></label>
     ${d.wallId ? '' : '<div class="btn-row"><button id="ins-rotate">Rotate 90°</button></div>'}
-    <p class="meta">Circuit and verified status come in the next phase.</p>
+    ${circuitFields(doc, d)}
     ${deleteBtn}`;
   const edit = fn => doc2 => fn(doc2.devices.find(x => x.id === d.id));
   bind('#ins-type', 'Change device type', (doc2, v) => edit(x => { x.type = v; normalizeDevice(x); })(doc2), { rerender: true });
@@ -187,20 +209,39 @@ function renderDevice(d, doc) {
   bind('#ins-label', 'Label device', (doc2, v) => edit(x => { x.label = v.trim(); })(doc2));
   bind('#ins-notes', 'Edit device notes', (doc2, v) => edit(x => { x.notes = v; })(doc2));
   button('#ins-rotate', () => commit('Rotate device', edit(x => { x.rot = ((x.rot ?? 0) + 90) % 360; })));
+  // A new circuit assignment hasn't been tested yet, so it starts unverified.
+  bind('#ins-breaker', 'Set circuit', (doc2, v) => edit(x => { if (x.breakerId !== (v || null)) { x.breakerId = v || null; x.verified = false; } })(doc2), { rerender: true });
+  bind('#ins-verified', 'Toggle verified', (doc2, v, input) => edit(x => { x.verified = input.checked && !!x.breakerId; })(doc2));
   bindDelete([d.id]);
 }
 
 // ---------- multiple ----------
-function renderMulti(items) {
+function renderMulti(items, doc) {
   const counts = {};
   for (const { kind } of items) counts[kind] = (counts[kind] ?? 0) + 1;
   const summary = Object.entries(counts).map(([k, n]) => `${n} ${k}${n > 1 ? 's' : ''}`).join(', ');
+  // Bulk circuit editing for the line-voltage devices in the selection.
+  const devs = items.filter(i => i.kind === 'device' && !LOW_VOLTAGE.has(i.obj.type)).map(i => i.obj);
+  const ids = new Set(devs.map(d => d.id));
+  const same = devs.length && devs.every(d => d.breakerId === devs[0].breakerId);
+  const nVer = devs.filter(d => d.verified).length;
+  const bulk = devs.length && doc.breakers.length ? `
+    <label>Circuit for ${devs.length} device${devs.length > 1 ? 's' : ''} <select id="ins-bulk-breaker">${circuitOptions(doc, same ? devs[0].breakerId : null, { mixed: !same })}</select></label>
+    <p class="meta">${nVer} of ${devs.length} verified</p>
+    <div class="btn-row"><button id="ins-bulk-verify">Mark verified</button><button id="ins-bulk-unverify">Mark not verified</button></div>` : '';
   el.innerHTML = `
     <h3>${items.length} selected</h3>
     <p class="meta">${summary}</p>
+    ${bulk}
     <p class="meta">Drag to move them together, or use the arrow keys (Shift = 1").</p>
     ${deleteBtn}
     <button id="ins-clear">Clear selection</button>`;
+  bind('#ins-bulk-breaker', 'Set circuit', (d2, v) => {
+    if (v === '__mixed') return;
+    for (const x of d2.devices) if (ids.has(x.id) && x.breakerId !== (v || null)) { x.breakerId = v || null; x.verified = false; }
+  }, { rerender: true });
+  button('#ins-bulk-verify', () => commit('Mark verified', d2 => { for (const x of d2.devices) if (ids.has(x.id) && x.breakerId) x.verified = true; }));
+  button('#ins-bulk-unverify', () => commit('Mark not verified', d2 => { for (const x of d2.devices) if (ids.has(x.id)) x.verified = false; }));
   bindDelete(items.map(i => i.obj.id));
   el.querySelector('#ins-clear').addEventListener('click', () => setView({ selection: [] }));
 }
@@ -211,7 +252,7 @@ export function renderInspector() {
   if (!doc) { el.innerHTML = ''; return; }
   const items = view.selection.map(x => findById(doc, x)).filter(Boolean);
   if (items.length === 0) renderHouse(doc);
-  else if (items.length > 1) renderMulti(items);
+  else if (items.length > 1) renderMulti(items, doc);
   else if (items[0].kind === 'wall') renderWall(items[0].obj);
   else if (items[0].kind === 'opening') renderOpening(items[0].obj, doc);
   else if (items[0].kind === 'area') renderArea(items[0].obj);

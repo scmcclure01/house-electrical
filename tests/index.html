@@ -17,7 +17,7 @@
     import { newHouse, migrate, validate, slotsOf, slotRow, slotSide, SCHEMA_VERSION } from '../js/model.js';
     import * as store from '../js/store.js';
     import { projectOnSegment, pointInPolygon, polygonArea, labelPoint, snapAngle, snapToGrid } from '../js/geometry.js';
-    import { deleteIds, findById, areaAt, normalizeDevice, isWallMounted } from '../js/model.js';
+    import { deleteIds, findById, areaAt, normalizeDevice, isWallMounted, slotProblem, breakerName, circuitStats, unassignedDevices, nextColor, assignableBreakers, PALETTE } from '../js/model.js';
 
     const out = document.getElementById('out');
     let pass = 0, fail = 0;
@@ -137,6 +137,36 @@
       d.devices.push(normalizeDevice({ id: 'd1', floorId: 'F1', type: 'outlet', x: 48, y: 2, wallId: 'w1' }));
       deleteIds(d, ['w1']);
       eq([d.devices.length, d.devices[0].wallId], [1, null]);
+    });
+
+    // panels & circuits
+    function panelHouse() {
+      const d = newHouse();
+      d.breakers.push({ id: 'b1', panelId: 'p_main', position: 1, poles: 1, amps: 20, label: 'A', color: PALETTE[0] });
+      d.breakers.push({ id: 'b3', panelId: 'p_main', position: 3, poles: 2, amps: 30, label: 'B', color: PALETTE[1] });
+      d.breakers.push({ id: 'bf', panelId: 'p_main', position: 2, poles: 2, amps: 60, label: 'Feed', color: PALETTE[2] });
+      d.panels[1].fedFromBreakerId = 'bf';
+      return d;
+    }
+    test('slotProblem: free slot ok', () => eq(slotProblem(panelHouse(), 'p_main', 7, 1), null));
+    test('slotProblem: 2-pole clashes with slot below', () => eq(/Slot 3/.test(slotProblem(panelHouse(), 'p_main', 1, 2, 'b1')), true));
+    test('slotProblem: past last space', () => eq(/outside/.test(slotProblem(panelHouse(), 'p_main', 29, 2)), true));
+    test('slotProblem ignores the breaker being moved', () => eq(slotProblem(panelHouse(), 'p_main', 3, 2, 'b3'), null));
+    test('breakerName shows both slots for 2-pole', () => eq(breakerName(panelHouse(), panelHouse().breakers[1]), 'Main 3/5'));
+    test('feeder breakers are not assignable', () => eq(assignableBreakers(panelHouse()).map(b => b.id), ['b1', 'b3']));
+    test('nextColor skips used colors', () => eq(nextColor(panelHouse()), PALETTE[3]));
+    test('circuitStats counts devices, verified, rooms', () => {
+      const d = panelHouse();
+      d.areas.push({ id: 'a1', floorId: 'F1', name: 'Kitchen', kind: 'room', points: [{x:0,y:0},{x:100,y:0},{x:100,y:100},{x:0,y:100}] });
+      d.devices.push(normalizeDevice({ id: 'd1', floorId: 'F1', type: 'outlet', x: 10, y: 10, breakerId: 'b1', verified: true }));
+      d.devices.push(normalizeDevice({ id: 'd2', floorId: 'F1', type: 'light', x: 200, y: 10, breakerId: 'b1' }));
+      const s = circuitStats(d).get('b1');
+      eq([s.total, s.verified, s.byType.outlet, s.rooms], [2, 1, 1, ['Exterior', 'Kitchen']]);
+    });
+    test('unassignedDevices skips low-voltage', () => {
+      const d = newHouse();
+      d.devices.push(normalizeDevice({ id: 'd1', type: 'outlet' }), normalizeDevice({ id: 'd2', type: 'ethernet' }));
+      eq(unassignedDevices(d).map(x => x.id), ['d1']);
     });
 
     // gestures

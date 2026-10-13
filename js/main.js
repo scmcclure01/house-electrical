@@ -8,6 +8,8 @@ import { renderInspector } from './ui/inspector.js';
 import { status, notify } from './ui/status.js';
 import './tools/index.js';
 import './ui/toolrail.js';
+import './ui/displaybar.js';
+import './ui/panels.js';
 
 const $ = sel => document.querySelector(sel);
 
@@ -34,6 +36,9 @@ function renderTopbar() {
     tabs.append(b);
   }
   document.querySelectorAll('#view-switch button').forEach(b => b.classList.toggle('active', b.dataset.view === view.mode));
+  // Floor tabs and the ghost toggle only mean something on the plan.
+  tabs.hidden = view.mode !== 'plan';
+  $('#ghost-floor').parentElement.hidden = view.mode !== 'plan';
 }
 
 function renderAll() {

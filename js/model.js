@@ -179,3 +179,73 @@ export function areaAt(doc, floorId, p) {
 }
 
 export function wallLength(w) { return Math.hypot(w.b.x - w.a.x, w.b.y - w.a.y); }
+
+// ---------- panels & circuits ----------
+// Distinct, saturated colors that read well as thin strokes on white. New breakers take the
+// first color not already used.
+export const PALETTE = [
+  '#e6194b', '#3cb44b', '#4363d8', '#f58231', '#911eb4', '#1aa3a3', '#f032e6', '#9a6324',
+  '#7a7a00', '#000075', '#d4a000', '#1b9e77', '#d95f02', '#7570b3', '#c51b7d', '#66a61e',
+  '#2c7fb8', '#8c510a', '#01665e', '#b2182b', '#5e3c99', '#e7298a', '#4d4d4d', '#a6761d',
+];
+
+export function nextColor(doc) {
+  const used = new Set(doc.breakers.map(b => b.color));
+  return PALETTE.find(c => !used.has(c)) ?? PALETTE[doc.breakers.length % PALETTE.length];
+}
+
+// Problem with putting a breaker (position, poles) in a panel, or null if it fits.
+export function slotProblem(doc, panelId, position, poles, ignoreId = null) {
+  const panel = doc.panels.find(p => p.id === panelId);
+  const want = slotsOf({ position, poles });
+  for (const s of want) if (s < 1 || s > panel.spaces) return `Slot ${s} is outside ${panel.name} (1–${panel.spaces})`;
+  for (const b of doc.breakers) {
+    if (b.panelId !== panelId || b.id === ignoreId) continue;
+    const clash = slotsOf(b).find(s => want.includes(s));
+    if (clash) return `Slot ${clash} is already used by ${breakerName(doc, b)}${b.label ? ` (${b.label})` : ''}`;
+  }
+  return null;
+}
+
+// "Main 7" or "Main 7/9" for a 2-pole breaker.
+export function breakerName(doc, b) {
+  const panel = doc.panels.find(p => p.id === b.panelId);
+  return `${panel?.name ?? '?'} ${slotsOf(b).join('/')}`;
+}
+
+// "Main 7 · Kitchen counter · 20A"
+export function breakerTitle(doc, b) {
+  return [breakerName(doc, b), b.label || 'unlabeled', `${b.amps}A`].join(' · ');
+}
+
+// The panel a breaker feeds (subpanel feeder), or undefined.
+export function fedPanel(doc, breakerId) {
+  return doc.panels.find(p => p.fedFromBreakerId === breakerId);
+}
+
+// Breakers devices can be assigned to (everything except subpanel feeders), sorted by panel then slot.
+export function assignableBreakers(doc) {
+  const order = new Map(doc.panels.map((p, i) => [p.id, i]));
+  return doc.breakers.filter(b => !fedPanel(doc, b.id))
+    .sort((a, b) => order.get(a.panelId) - order.get(b.panelId) || a.position - b.position);
+}
+
+// Per-breaker device statistics: {total, verified, byType: {type: n}, rooms: [names]}.
+export function circuitStats(doc) {
+  const stats = new Map(doc.breakers.map(b => [b.id, { total: 0, verified: 0, byType: {}, rooms: new Set() }]));
+  for (const d of doc.devices) {
+    const s = d.breakerId && stats.get(d.breakerId);
+    if (!s) continue;
+    s.total++;
+    if (d.verified) s.verified++;
+    s.byType[d.type] = (s.byType[d.type] ?? 0) + 1;
+    s.rooms.add(areaAt(doc, d.floorId, d)?.name ?? 'Exterior');
+  }
+  for (const s of stats.values()) s.rooms = [...s.rooms].sort();
+  return stats;
+}
+
+// Devices that should be on a circuit but aren't (low-voltage drops don't count).
+export function unassignedDevices(doc) {
+  return doc.devices.filter(d => !d.breakerId && !LOW_VOLTAGE.has(d.type));
+}

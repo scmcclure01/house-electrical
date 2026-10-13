@@ -897,7 +897,7 @@
       "wallId": "w_s01",
       "label": "",
       "notes": "",
-      "breakerId": null,
+      "breakerId": "b_m07",
       "verified": false,
       "gfci": false,
       "afci": true
@@ -912,7 +912,7 @@
       "wallId": "w_s01",
       "label": "",
       "notes": "",
-      "breakerId": null,
+      "breakerId": "b_m07",
       "verified": false,
       "gfci": false,
       "afci": true
@@ -927,7 +927,7 @@
       "wallId": "w_s04",
       "label": "",
       "notes": "",
-      "breakerId": null,
+      "breakerId": "b_m07",
       "verified": false,
       "gfci": false,
       "afci": true
@@ -942,7 +942,7 @@
       "wallId": "w_s08",
       "label": "",
       "notes": "",
-      "breakerId": null,
+      "breakerId": "b_m07",
       "verified": false,
       "gfci": false,
       "afci": true
@@ -957,7 +957,7 @@
       "wallId": "w_s03",
       "label": "Entry",
       "notes": "",
-      "breakerId": null,
+      "breakerId": "b_m08",
       "verified": false,
       "switchKind": "single"
     },
@@ -986,7 +986,7 @@
       "wallId": null,
       "label": "Living fan",
       "notes": "",
-      "breakerId": null,
+      "breakerId": "b_m08",
       "verified": false,
       "lightKind": "fan"
     },
@@ -1028,8 +1028,8 @@
       "wallId": "w_s01",
       "label": "Counter left",
       "notes": "",
-      "breakerId": null,
-      "verified": false,
+      "breakerId": "b_m01",
+      "verified": true,
       "gfci": true,
       "afci": false
     },
@@ -1043,8 +1043,8 @@
       "wallId": "w_s01",
       "label": "Counter right",
       "notes": "",
-      "breakerId": null,
-      "verified": false,
+      "breakerId": "b_m01",
+      "verified": true,
       "gfci": true,
       "afci": false
     },
@@ -1058,8 +1058,8 @@
       "wallId": "w_s02",
       "label": "Counter",
       "notes": "",
-      "breakerId": null,
-      "verified": false,
+      "breakerId": "b_m01",
+      "verified": true,
       "gfci": true,
       "afci": false
     },
@@ -1073,8 +1073,8 @@
       "wallId": "w_s02",
       "label": "Fridge",
       "notes": "",
-      "breakerId": null,
-      "verified": false,
+      "breakerId": "b_m02",
+      "verified": true,
       "gfci": false,
       "afci": false
     },
@@ -1088,8 +1088,8 @@
       "wallId": "w_s08",
       "label": "Range",
       "notes": "",
-      "breakerId": null,
-      "verified": false
+      "breakerId": "b_m03",
+      "verified": true
     },
     {
       "id": "d_s15",
@@ -1101,8 +1101,8 @@
       "wallId": "w_s01",
       "label": "Dishwasher",
       "notes": "",
-      "breakerId": null,
-      "verified": false
+      "breakerId": "b_m04",
+      "verified": true
     },
     {
       "id": "d_s16",
@@ -1114,8 +1114,8 @@
       "wallId": "w_s01",
       "label": "Back door",
       "notes": "",
-      "breakerId": null,
-      "verified": false,
+      "breakerId": "b_m06",
+      "verified": true,
       "switchKind": "single"
     },
     {
@@ -1128,8 +1128,8 @@
       "wallId": null,
       "label": "",
       "notes": "",
-      "breakerId": null,
-      "verified": false,
+      "breakerId": "b_m06",
+      "verified": true,
       "lightKind": "recessed"
     },
     {
@@ -1142,8 +1142,8 @@
       "wallId": null,
       "label": "",
       "notes": "",
-      "breakerId": null,
-      "verified": false,
+      "breakerId": "b_m06",
+      "verified": true,
       "lightKind": "recessed"
     },
     {
@@ -1156,8 +1156,8 @@
       "wallId": null,
       "label": "",
       "notes": "",
-      "breakerId": null,
-      "verified": false,
+      "breakerId": "b_m06",
+      "verified": true,
       "lightKind": "recessed"
     },
     {
@@ -1170,8 +1170,8 @@
       "wallId": null,
       "label": "",
       "notes": "",
-      "breakerId": null,
-      "verified": false,
+      "breakerId": "b_m06",
+      "verified": true,
       "lightKind": "recessed"
     },
     {
@@ -1184,8 +1184,8 @@
       "wallId": "w_s01",
       "label": "Patio",
       "notes": "",
-      "breakerId": null,
-      "verified": false,
+      "breakerId": "b_m06",
+      "verified": true,
       "lightKind": "wall"
     },
     {
@@ -1198,7 +1198,7 @@
       "wallId": "w_s01",
       "label": "Patio WP",
       "notes": "",
-      "breakerId": null,
+      "breakerId": "b_m10",
       "verified": false,
       "gfci": true,
       "afci": false
@@ -1213,8 +1213,8 @@
       "wallId": null,
       "label": "Chandelier",
       "notes": "",
-      "breakerId": null,
-      "verified": false,
+      "breakerId": "b_m06",
+      "verified": true,
       "lightKind": "ceiling"
     },
     {
@@ -1227,7 +1227,7 @@
       "wallId": "w_s02",
       "label": "",
       "notes": "",
-      "breakerId": null,
+      "breakerId": "b_m07",
       "verified": false,
       "gfci": false,
       "afci": true
@@ -1242,7 +1242,7 @@
       "wallId": "w_s03",
       "label": "",
       "notes": "",
-      "breakerId": null,
+      "breakerId": "b_m07",
       "verified": false,
       "gfci": false,
       "afci": true
@@ -1257,8 +1257,8 @@
       "wallId": "w_s03",
       "label": "",
       "notes": "",
-      "breakerId": null,
-      "verified": false,
+      "breakerId": "b_m06",
+      "verified": true,
       "switchKind": "single"
     },
     {
@@ -1271,8 +1271,8 @@
       "wallId": "w_s10",
       "label": "",
       "notes": "",
-      "breakerId": null,
-      "verified": false,
+      "breakerId": "b_m09",
+      "verified": true,
       "gfci": true,
       "afci": false
     },
@@ -1286,8 +1286,8 @@
       "wallId": "w_s11",
       "label": "Vanity",
       "notes": "",
-      "breakerId": null,
-      "verified": false,
+      "breakerId": "b_m09",
+      "verified": true,
       "lightKind": "wall"
     },
     {
@@ -1300,8 +1300,8 @@
       "wallId": "w_s10",
       "label": "",
       "notes": "",
-      "breakerId": null,
-      "verified": false,
+      "breakerId": "b_m09",
+      "verified": true,
       "switchKind": "single"
     },
     {
@@ -1314,8 +1314,8 @@
       "wallId": "w_s10",
       "label": "Exhaust fan",
       "notes": "",
-      "breakerId": null,
-      "verified": false
+      "breakerId": "b_m09",
+      "verified": true
     },
     {
       "id": "d_s31",
@@ -1327,7 +1327,7 @@
       "wallId": "w_s11",
       "label": "Stair bottom",
       "notes": "",
-      "breakerId": null,
+      "breakerId": "b_m08",
       "verified": false,
       "switchKind": "3way"
     },
@@ -1341,7 +1341,7 @@
       "wallId": null,
       "label": "Stair",
       "notes": "",
-      "breakerId": null,
+      "breakerId": "b_m08",
       "verified": false,
       "lightKind": "ceiling"
     },
@@ -1355,7 +1355,7 @@
       "wallId": "w_s05",
       "label": "",
       "notes": "",
-      "breakerId": null,
+      "breakerId": "b_m10",
       "verified": false,
       "gfci": true,
       "afci": false
@@ -1370,7 +1370,7 @@
       "wallId": "w_s05",
       "label": "",
       "notes": "",
-      "breakerId": null,
+      "breakerId": "b_m10",
       "verified": false,
       "gfci": true,
       "afci": false
@@ -1385,7 +1385,7 @@
       "wallId": "w_s06",
       "label": "EV charger",
       "notes": "",
-      "breakerId": null,
+      "breakerId": "b_m12",
       "verified": false
     },
     {
@@ -1398,8 +1398,8 @@
       "wallId": "w_s06",
       "label": "Water heater",
       "notes": "",
-      "breakerId": null,
-      "verified": false
+      "breakerId": "b_m11",
+      "verified": true
     },
     {
       "id": "d_s37",
@@ -1411,7 +1411,7 @@
       "wallId": null,
       "label": "Door opener",
       "notes": "",
-      "breakerId": null,
+      "breakerId": "b_m10",
       "verified": false
     },
     {
@@ -1424,7 +1424,7 @@
       "wallId": null,
       "label": "",
       "notes": "",
-      "breakerId": null,
+      "breakerId": "b_m10",
       "verified": false,
       "lightKind": "ceiling"
     },
@@ -1438,7 +1438,7 @@
       "wallId": null,
       "label": "",
       "notes": "",
-      "breakerId": null,
+      "breakerId": "b_m10",
       "verified": false,
       "lightKind": "ceiling"
     },
@@ -1452,7 +1452,7 @@
       "wallId": "w_s04",
       "label": "Garage",
       "notes": "",
-      "breakerId": null,
+      "breakerId": "b_m10",
       "verified": false,
       "switchKind": "single"
     },
@@ -1466,8 +1466,8 @@
       "wallId": "w_s12",
       "label": "",
       "notes": "",
-      "breakerId": null,
-      "verified": false,
+      "breakerId": "b_s01",
+      "verified": true,
       "gfci": false,
       "afci": true
     },
@@ -1481,8 +1481,8 @@
       "wallId": "w_s15",
       "label": "",
       "notes": "",
-      "breakerId": null,
-      "verified": false,
+      "breakerId": "b_s01",
+      "verified": true,
       "gfci": false,
       "afci": true
     },
@@ -1496,8 +1496,8 @@
       "wallId": "w_s16",
       "label": "",
       "notes": "",
-      "breakerId": null,
-      "verified": false,
+      "breakerId": "b_s01",
+      "verified": true,
       "gfci": false,
       "afci": true
     },
@@ -1511,8 +1511,8 @@
       "wallId": "w_s17",
       "label": "",
       "notes": "",
-      "breakerId": null,
-      "verified": false,
+      "breakerId": "b_s01",
+      "verified": true,
       "switchKind": "single"
     },
     {
@@ -1525,8 +1525,8 @@
       "wallId": null,
       "label": "Bedroom 2",
       "notes": "",
-      "breakerId": null,
-      "verified": false,
+      "breakerId": "b_s01",
+      "verified": true,
       "lightKind": "ceiling"
     },
     {
@@ -1553,7 +1553,7 @@
       "wallId": "w_s18",
       "label": "",
       "notes": "",
-      "breakerId": null,
+      "breakerId": "b_s04",
       "verified": false,
       "switchKind": "single"
     },
@@ -1567,8 +1567,8 @@
       "wallId": "w_s12",
       "label": "",
       "notes": "",
-      "breakerId": null,
-      "verified": false,
+      "breakerId": "b_s03",
+      "verified": true,
       "gfci": true,
       "afci": false
     },
@@ -1582,7 +1582,7 @@
       "wallId": null,
       "label": "",
       "notes": "",
-      "breakerId": null,
+      "breakerId": "b_s04",
       "verified": false,
       "lightKind": "recessed"
     },
@@ -1596,7 +1596,7 @@
       "wallId": null,
       "label": "Exhaust fan",
       "notes": "",
-      "breakerId": null,
+      "breakerId": "b_s04",
       "verified": false
     },
     {
@@ -1609,7 +1609,7 @@
       "wallId": "w_s22",
       "label": "Stair top",
       "notes": "",
-      "breakerId": null,
+      "breakerId": "b_m08",
       "verified": false,
       "switchKind": "3way"
     },
@@ -1623,7 +1623,7 @@
       "wallId": null,
       "label": "Hall",
       "notes": "",
-      "breakerId": null,
+      "breakerId": "b_s04",
       "verified": false,
       "lightKind": "ceiling"
     },
@@ -1637,7 +1637,7 @@
       "wallId": null,
       "label": "Hall",
       "notes": "",
-      "breakerId": null,
+      "breakerId": "b_s04",
       "verified": false,
       "lightKind": "ceiling"
     },
@@ -1651,7 +1651,7 @@
       "wallId": "w_s12",
       "label": "",
       "notes": "",
-      "breakerId": null,
+      "breakerId": "b_s02",
       "verified": false,
       "gfci": false,
       "afci": true
@@ -1666,7 +1666,7 @@
       "wallId": "w_s12",
       "label": "",
       "notes": "",
-      "breakerId": null,
+      "breakerId": "b_s02",
       "verified": false,
       "gfci": false,
       "afci": true
@@ -1681,7 +1681,7 @@
       "wallId": "w_s13",
       "label": "",
       "notes": "",
-      "breakerId": null,
+      "breakerId": "b_s02",
       "verified": false,
       "gfci": false,
       "afci": true
@@ -1696,7 +1696,7 @@
       "wallId": "w_s19",
       "label": "",
       "notes": "",
-      "breakerId": null,
+      "breakerId": "b_s02",
       "verified": false,
       "gfci": false,
       "afci": true
@@ -1711,7 +1711,7 @@
       "wallId": "w_s19",
       "label": "Primary",
       "notes": "",
-      "breakerId": null,
+      "breakerId": "b_s02",
       "verified": false,
       "switchKind": "single"
     },
@@ -1725,7 +1725,7 @@
       "wallId": null,
       "label": "Primary fan",
       "notes": "",
-      "breakerId": null,
+      "breakerId": "b_s02",
       "verified": false,
       "lightKind": "fan"
     },
@@ -1781,8 +1781,8 @@
       "wallId": "w_s13",
       "label": "",
       "notes": "",
-      "breakerId": null,
-      "verified": false,
+      "breakerId": "b_s03",
+      "verified": true,
       "gfci": true,
       "afci": false
     },
@@ -1796,8 +1796,8 @@
       "wallId": "w_s13",
       "label": "",
       "notes": "",
-      "breakerId": null,
-      "verified": false,
+      "breakerId": "b_s03",
+      "verified": true,
       "gfci": true,
       "afci": false
     },
@@ -1867,7 +1867,7 @@
       "wallId": null,
       "label": "Attic fan",
       "notes": "",
-      "breakerId": null,
+      "breakerId": "b_s05",
       "verified": false
     },
     {
@@ -1900,9 +1900,180 @@
       "spaces": 20,
       "location": "Basement stair",
       "notes": "",
-      "fedFromBreakerId": null
+      "fedFromBreakerId": "b_m15"
     }
   ],
-  "breakers": [],
+  "breakers": [
+    {
+      "id": "b_m01",
+      "panelId": "p_main",
+      "position": 1,
+      "poles": 1,
+      "amps": 20,
+      "label": "Kitchen counter",
+      "notes": "",
+      "color": "#e6194b"
+    },
+    {
+      "id": "b_m02",
+      "panelId": "p_main",
+      "position": 2,
+      "poles": 1,
+      "amps": 20,
+      "label": "Refrigerator",
+      "notes": "",
+      "color": "#3cb44b"
+    },
+    {
+      "id": "b_m03",
+      "panelId": "p_main",
+      "position": 3,
+      "poles": 2,
+      "amps": 50,
+      "label": "Range",
+      "notes": "",
+      "color": "#4363d8"
+    },
+    {
+      "id": "b_m04",
+      "panelId": "p_main",
+      "position": 4,
+      "poles": 1,
+      "amps": 20,
+      "label": "Dishwasher",
+      "notes": "",
+      "color": "#f58231"
+    },
+    {
+      "id": "b_m06",
+      "panelId": "p_main",
+      "position": 6,
+      "poles": 1,
+      "amps": 15,
+      "label": "Kitchen & dining lights",
+      "notes": "",
+      "color": "#911eb4"
+    },
+    {
+      "id": "b_m07",
+      "panelId": "p_main",
+      "position": 7,
+      "poles": 1,
+      "amps": 15,
+      "label": "Living & dining outlets",
+      "notes": "AFCI breaker",
+      "color": "#1aa3a3"
+    },
+    {
+      "id": "b_m08",
+      "panelId": "p_main",
+      "position": 8,
+      "poles": 1,
+      "amps": 15,
+      "label": "Living room & stair lights",
+      "notes": "",
+      "color": "#f032e6"
+    },
+    {
+      "id": "b_m09",
+      "panelId": "p_main",
+      "position": 9,
+      "poles": 1,
+      "amps": 20,
+      "label": "Half bath",
+      "notes": "",
+      "color": "#9a6324"
+    },
+    {
+      "id": "b_m10",
+      "panelId": "p_main",
+      "position": 10,
+      "poles": 1,
+      "amps": 20,
+      "label": "Garage & patio outlets",
+      "notes": "",
+      "color": "#7a7a00"
+    },
+    {
+      "id": "b_m11",
+      "panelId": "p_main",
+      "position": 11,
+      "poles": 2,
+      "amps": 30,
+      "label": "Water heater",
+      "notes": "",
+      "color": "#000075"
+    },
+    {
+      "id": "b_m12",
+      "panelId": "p_main",
+      "position": 12,
+      "poles": 2,
+      "amps": 50,
+      "label": "EV charger",
+      "notes": "",
+      "color": "#d4a000"
+    },
+    {
+      "id": "b_m15",
+      "panelId": "p_main",
+      "position": 15,
+      "poles": 2,
+      "amps": 60,
+      "label": "Sub panel feed",
+      "notes": "",
+      "color": "#1b9e77"
+    },
+    {
+      "id": "b_s01",
+      "panelId": "p_sub",
+      "position": 1,
+      "poles": 1,
+      "amps": 15,
+      "label": "Bedroom 2",
+      "notes": "",
+      "color": "#d95f02"
+    },
+    {
+      "id": "b_s02",
+      "panelId": "p_sub",
+      "position": 2,
+      "poles": 1,
+      "amps": 15,
+      "label": "Primary bedroom",
+      "notes": "",
+      "color": "#7570b3"
+    },
+    {
+      "id": "b_s03",
+      "panelId": "p_sub",
+      "position": 3,
+      "poles": 1,
+      "amps": 20,
+      "label": "Upstairs bath outlets",
+      "notes": "",
+      "color": "#c51b7d"
+    },
+    {
+      "id": "b_s04",
+      "panelId": "p_sub",
+      "position": 4,
+      "poles": 1,
+      "amps": 15,
+      "label": "Hall & bath lights",
+      "notes": "",
+      "color": "#66a61e"
+    },
+    {
+      "id": "b_s05",
+      "panelId": "p_sub",
+      "position": 5,
+      "poles": 1,
+      "amps": 15,
+      "label": "Attic fan",
+      "notes": "",
+      "color": "#e6194b"
+    }
+  ],
   "switchGroups": []
 }

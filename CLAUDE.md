@@ -39,7 +39,8 @@ with the File System Access API (Chrome/Edge only).
 - Shared wall corners: moving a wall end also moves other wall ends at the same point (same floor).
 - Opening `offsetIn` is measured from wall end `a`; the UI marks that end with an "A".
 - Keyboard shortcuts: V select · W/I ext/int wall · A area · T stair · D/N/O door/window/opening ·
-  R outlet · 2 240V · H hardwired · S switch · L light · C cable · E ethernet · F fit · Esc · Delete.
+  R outlet · 2 240V · H hardwired · S switch · L light · C cable · E ethernet · B assign circuit ·
+  F fit · Esc · Delete.
 - Device symbols scale up when zoomed out (min ~15px) and text tags hide below 1.6 px/inch.
 - Code style: 2-space indent, single quotes, semicolons, small modules, comments only where intent isn't obvious.
 
@@ -54,12 +55,14 @@ js/units.js         ft-in parse/format
 js/geometry.js      points, snapping, projection, polygon area / label point
 js/ui/viewstate.js  UI-only state (floor, selection, tool, display toggles)
 js/ui/inspector.js  properties panel     js/ui/toolrail.js  tool buttons, tool options, zoom controls
-js/ui/status.js     status bar
+js/ui/status.js     status bar + toast (status() for hints, notify() for events; errors always toast)
+js/ui/panels.js     Panels view: panel diagrams + breaker/panel editor
+js/ui/displaybar.js plan display controls: Circuits / Unassigned, "only this circuit" chip, verified key
 js/render/plan.js   SVG plan renderer + camera (viewBox pan/zoom), openingGeom(), deviceMarkup()
 js/render/symbols.js  electrical symbols (local frame, radius R=6"), deviceTags(); reused for rail icons/legend
 js/tools/index.js   tool registry, pointer/wheel/keyboard routing, Delete/Esc/F shortcuts
 js/tools/snap.js    corner → Shift 45° → grid snapping
-js/tools/select.js, wall.js, area.js, opening.js, device.js   individual tools
+js/tools/select.js, wall.js, area.js, opening.js, device.js, assign.js   individual tools
                     (device.js exports devicePlacement(): wall-face snapping / room-centre snapping)
 js/print/           (Phase 5)
 samples/sample-house.json   tests/index.html
@@ -83,6 +86,9 @@ floors[], walls[], openings[], areas[], devices[], panels[], breakers[], switchG
 - **panel** `{id, name, spaces, location, notes, fedFromBreakerId|null}` — main (~30 spaces) and one subpanel
   fed from a 2-pole breaker in the main.
 - **breaker** `{id, panelId, position, poles: 1|2, amps, label, notes, color}`. A breaker *is* a circuit.
+  Helpers in model.js: `slotProblem()` (fit/overlap check — use before any position/poles change),
+  `breakerName()` ("Main 3/5"), `breakerTitle()`, `assignableBreakers()` (excludes subpanel feeders),
+  `circuitStats()` (devices/verified/byType/rooms per breaker), `unassignedDevices()`, `nextColor()`.
 - **switchGroup** `{id, switchIds[], loadIds[]}` — 1 switch = single-pole, 2 switches = 3-way pair.
   Loads may be any device type (lights, half-hot outlets, fans…). A switch is in at most one group.
 
@@ -90,6 +96,10 @@ Rules (`validate()`):
 - Slots: odd on the left, even on the right, numbered top to bottom; row = ceil(n/2). A 2-pole breaker at n
   occupies n and n+2. Must fit `1..spaces`, no overlaps.
 - A device is on at most one breaker. No 4-way switches, no tandem breakers.
+- `verified` = assignment confirmed by testing. Changing a device's breaker resets `verified` to false
+  (except the Assign tool with "Mark verified" on, which sets it true). Subpanel feeders can't have devices.
+- Plan display: assigned devices take their breaker color; unverified = dashed outline + white fill;
+  low-voltage = slate gray. `view.display`/`focusBreakerId`/Assign tool dim the others (see `emphasis()` in plan.js).
 - Deletes cascade: wall → its openings; breaker → unassign its devices; device → remove from switch groups.
 - **Schema changes**: bump `SCHEMA_VERSION`, add a `MIGRATIONS[oldVersion]` step in `model.js`, add a test.
   Files newer than the app open read-only.
@@ -98,7 +108,7 @@ Rules (`validate()`):
 0. Scaffold, file I/O, undo/redo ✅
 1. Walls, areas (rooms/garage/attic/exterior/stair), openings, pan/zoom, select/move/delete ✅
 2. Devices with standard plan symbols ✅
-3. Panels view, breakers, circuit assignment, colors, verified styling, unassigned view
+3. Panels view, breakers, circuit assignment, colors, verified styling, unassigned view ✅
 4. Switch → load links, 3-way
 5. Print: floor sheets with legend (Letter/11×17), circuit table, panel door schedules, breaker labels
 

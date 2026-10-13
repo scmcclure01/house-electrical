@@ -3,7 +3,8 @@
 import { view, setView, onViewChange } from './viewstate.js';
 import { TOOLS, setTool } from '../tools/index.js';
 import { zoomBy, fit } from '../render/plan.js';
-import { AREA_KINDS, DEVICE_TYPES, LIGHT_KINDS } from '../model.js';
+import { AREA_KINDS, DEVICE_TYPES, LIGHT_KINDS, assignableBreakers, breakerTitle } from '../model.js';
+import * as store from '../store.js';
 import { symbolMarkup } from '../render/symbols.js';
 
 const ICONS = {
@@ -15,15 +16,18 @@ const ICONS = {
   door: '<path d="M5 20V6M5 6a14 14 0 0 1 14 14M3 20h18" fill="none" stroke="currentColor" stroke-width="1.6"/>',
   window: '<path d="M3 9h18v6H3zM3 12h18" fill="none" stroke="currentColor" stroke-width="1.6"/>',
   opening: '<path d="M2 12h6M16 12h6M8 8v8M16 8v8" fill="none" stroke="currentColor" stroke-width="2"/>',
+  // breaker handle
+  assign: '<rect x="6" y="3" width="12" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.7"/><rect x="9" y="7" width="6" height="6" rx="1" fill="#e6194b"/><path d="M9 17h6" stroke="currentColor" stroke-width="1.7"/>',
 };
 
-const GROUPS = [['select'], ['extWall', 'intWall', 'area', 'stair'], ['door', 'window', 'opening'], DEVICE_TYPES];
+const GROUPS = [['select'], ['extWall', 'intWall', 'area', 'stair'], ['door', 'window', 'opening'], DEVICE_TYPES, ['assign']];
 
 // Device icons reuse the real plan symbols, drawn facing right.
 const ICON_DEVICE = { outlet: {}, receptacle240: {}, hardwired: {}, switch: { switchKind: 'single' }, light: { lightKind: 'ceiling' }, cable: {}, ethernet: {} };
 for (const t of DEVICE_TYPES) ICONS[t] = `<g transform="translate(12 12) scale(1.15)" class="icon-sym">${symbolMarkup({ type: t, rot: 0, ...ICON_DEVICE[t] })}</g>`;
 
 const rail = document.getElementById('tool-rail');
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const opts = document.getElementById('tool-options');
 
 function buildRail() {
@@ -58,6 +62,14 @@ function renderRail() {
   } else if (view.tool === 'switch') {
     html = `<label>Switch <select id="opt-switch"><option value="single">Single-pole</option>
       <option value="3way"${o.switchKind === '3way' ? ' selected' : ''}>3-way</option></select></label>`;
+  } else if (view.tool === 'assign') {
+    const doc = store.getDoc();
+    const list = doc ? assignableBreakers(doc) : [];
+    html = list.length
+      ? `<label>Breaker <select id="opt-breaker"><option value="">— choose —</option>${list.map(b =>
+          `<option value="${b.id}"${b.id === view.assignBreakerId ? ' selected' : ''}>${esc(breakerTitle(doc, b))}</option>`).join('')}</select></label>
+        <label><input type="checkbox" id="opt-verify"${view.assignVerify ? ' checked' : ''}> Mark verified</label>`
+      : '<span>No breakers yet — add them in the <b>Panels</b> view first.</span>';
   } else if (view.tool === 'light') {
     html = `<label>Light <select id="opt-light">${LIGHT_KINDS
       .map(k => `<option value="${k}"${k === o.lightKind ? ' selected' : ''}>${cap(k)}</option>`).join('')}</select></label>`;
@@ -69,11 +81,15 @@ function renderRail() {
   opts.querySelector('#opt-afci')?.addEventListener('change', e => setOpt({ afci: e.target.checked }));
   opts.querySelector('#opt-switch')?.addEventListener('change', e => setOpt({ switchKind: e.target.value }));
   opts.querySelector('#opt-light')?.addEventListener('change', e => setOpt({ lightKind: e.target.value }));
+  opts.querySelector('#opt-breaker')?.addEventListener('change', e => setView({ assignBreakerId: e.target.value || null }));
+  opts.querySelector('#opt-verify')?.addEventListener('change', e => setView({ assignVerify: e.target.checked }));
 }
 
 buildRail();
 renderRail();
-onViewChange(patch => { if ('tool' in patch) renderRail(); });
+onViewChange(patch => { if ('tool' in patch || ('assignBreakerId' in patch && view.tool === 'assign')) renderRail(); });
+// Breakers can change under the Assign tool (undo, opening a file): refresh its list.
+store.subscribe(reason => { if (reason !== 'preview' && view.tool === 'assign') renderRail(); });
 
 document.getElementById('zoom-in').addEventListener('click', () => zoomBy(1.25));
 document.getElementById('zoom-out').addEventListener('click', () => zoomBy(0.8));
