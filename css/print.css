@@ -1,4 +1,96 @@
-/* Print layouts (filled in during Phase 5). Page size is set per print job from the Print view. */
-@media print {
-  #topbar, #statusbar, #tool-rail, #inspector { display: none !important; }
+/* Print view: options panel, on-screen preview of sheets, and the actual print styles.
+   Sheet size comes from --sw/--sh/--m set on #print-pages by js/print/index.js; @page is injected there too. */
+
+#view-print { grid-template-columns: 260px 1fr; }
+#print-options { background: var(--panel); border-right: 1px solid var(--line); padding: 12px 14px; overflow-y: auto; }
+#print-options h3 { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 16px 0 8px; }
+#print-options h3:first-child { margin-top: 0; }
+#print-options label { display: block; margin-bottom: 8px; color: var(--muted); }
+#print-options label > select { margin-top: 3px; color: var(--ink); }
+#print-options .opt-check { display: flex; align-items: center; gap: 7px; color: var(--ink); cursor: pointer; }
+#print-options .opt-check input { width: auto; margin: 0; }
+#print-options .meta { font-size: 12px; color: var(--muted); margin-top: 18px; }
+#print-preview { overflow: auto; background: #d9dce1; padding: 24px; }
+
+/* ---- sheets ---- */
+.sheet {
+  width: var(--sw); height: var(--sh); padding: var(--m); margin: 0 auto 28px; box-sizing: border-box;
+  background: #fff; color: #111; box-shadow: 0 4px 18px rgba(0,0,0,.18); overflow: hidden; position: relative;
+  font: 11px/1.35 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
 }
+.sheet.flow { height: auto; min-height: var(--sh); overflow: visible; }
+.sheet h2 { margin: 0; font-size: 18px; }
+.sheet h3 { margin: 14px 0 6px; font-size: 13px; }
+.sheet .muted { color: #6b6f73; }
+.sheet .small { font-size: 9.5px; }
+.sheet .right { text-align: right; }
+.sheet .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+.sheet-head { display: flex; flex-direction: column; gap: 3px; border-bottom: 2px solid #111; padding-bottom: 6px; margin-bottom: 10px; }
+
+/* floor plan */
+.sheet-floor { display: flex; gap: 0.2in; }
+.floor-plan { flex: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid #111; }
+.floor-plan svg { display: block; }
+.floor-side { display: flex; flex-direction: column; justify-content: space-between; gap: 10px; min-height: 0; }
+.legend { border: 1px solid #111; padding: 8px 10px; overflow: hidden; flex: 1; min-height: 0; }
+.legend h4 { margin: 8px 0 4px; font-size: 10px; text-transform: uppercase; letter-spacing: .05em; }
+.legend h4:first-child { margin-top: 0; }
+.lg-row { display: flex; align-items: center; gap: 6px; height: 22px; }
+.lg-note { font-size: 9px; color: #444; margin: 3px 0; }
+.lg-unverified .sym, .lg-unverified .sym-line { stroke-dasharray: 2.6 1.8; }
+.lg-circuit { font-size: 9.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.title-block { border: 2px solid #111; padding: 8px 10px; }
+.tb-house { font-size: 15px; font-weight: 800; }
+.tb-title { font-size: 12px; font-weight: 600; margin-top: 2px; }
+.tb-sub, .tb-date { font-size: 10px; color: #444; margin-top: 3px; }
+.print-plan .grid-axis { display: none; }
+
+/* circuit table */
+.ctable { width: 100%; border-collapse: collapse; font-size: 10px; }
+.ctable th { background: #1f2937; color: #fff; text-align: left; padding: 4px 5px; font-weight: 600; }
+.ctable td { border-bottom: 1px solid #d5d8dc; padding: 3px 5px; vertical-align: top; }
+.ctable tr { break-inside: avoid; }
+.ctable thead { display: table-header-group; }
+.ctable .c { text-align: center; }
+.ctable .nowrap { white-space: nowrap; }
+.ctable td.codes, .sheet p.codes { font-family: ui-monospace, Menlo, monospace; font-size: 9px; }
+.codes .unv { color: #8a8f96; font-style: italic; }
+.ctable tbody tr:nth-child(even) td { background: #f6f7f8; }
+.ctable.lv { width: auto; min-width: 60%; }
+
+/* panel schedule */
+.sched-head { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #111; padding-bottom: 6px; margin-bottom: 8px; }
+.sched-head h2 { font-size: 20px; }
+.sched-head .code { display: inline-block; background: #111; color: #fff; padding: 0 7px; border-radius: 4px; font-family: ui-monospace, Menlo, monospace; }
+.sched { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.sched col.cn { width: 4.5%; }
+.sched col.ca { width: 6%; }
+.sched td { border: 1px solid #111; padding: 2px 6px; vertical-align: middle; overflow: hidden; }
+.sched td.num { text-align: center; font-weight: 800; background: #f0f1f3; }
+.sched td.amps { text-align: center; font-weight: 700; }
+.sched td.amps small { font-weight: 600; color: #555; }
+.sched td.spare { color: #aaa; text-align: center; }
+.sched .desc { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sched .rooms { font-size: .8em; color: #555; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sched .bt { font-size: .7em; font-weight: 700; padding: 0 3px; border: 1px solid #555; border-radius: 3px; }
+
+/* breaker labels */
+.blabels { display: grid; grid-template-columns: repeat(auto-fill, var(--lw)); gap: 0; margin-bottom: 10px; }
+.blabel {
+  width: var(--lw); height: var(--lh); box-sizing: border-box; border: 1px dashed #888; display: flex; align-items: center; justify-content: center;
+  font: 800 calc(var(--lh) * 0.5) / 1 -apple-system, "Helvetica Neue", Arial, sans-serif; break-inside: avoid;
+}
+
+/* ---- actual printing ---- */
+@media print {
+  html, body { height: auto; background: #fff; }
+  body { display: block; }
+  #appbar, #subbar, #statusbar, #print-options, .view:not(#view-print), #toast { display: none !important; }
+  #workspace, #view-print, #print-preview { display: block !important; overflow: visible !important; padding: 0 !important; background: none !important; }
+  #print-pages { zoom: 1 !important; }
+  .sheet { box-shadow: none; margin: 0; padding: 0; width: calc(var(--sw) - 2 * var(--m)); height: calc(var(--sh) - 2 * var(--m) - 0.04in); break-after: page; }
+  .sheet.flow { height: auto; min-height: 0; }
+  .sheet:last-child { break-after: auto; }
+}
+.scale-bar { display: block; margin-top: 6px; }

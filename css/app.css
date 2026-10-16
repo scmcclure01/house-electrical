@@ -140,8 +140,9 @@ button.danger:hover:not(:disabled) { border-color: var(--danger); }
 #plan:not(.tool-select) { cursor: crosshair; }
 #plan.can-pan { cursor: grab; }
 #plan.panning { cursor: grabbing; }
-#plan * { vector-effect: non-scaling-stroke; }
-#plan .wall, #plan .hit, #plan .opening-gap, #plan .preview-wall, #plan .preview-opening { vector-effect: none; }
+#plan *, .print-plan * { vector-effect: non-scaling-stroke; }
+#plan .wall, #plan .hit, #plan .opening-gap, #plan .preview-wall, #plan .preview-opening,
+.print-plan .wall, .print-plan .opening-gap, .print-plan .hit { vector-effect: none; }
 
 .grid-minor { stroke: #eeeeea; stroke-width: 1; }
 .grid-foot { stroke: #e2e2dc; stroke-width: 1; }
@@ -316,3 +317,4 @@ button.primary:hover:not(:disabled) { background: #1d55cf; }
 .link-x { border: 0; background: none; padding: 0 3px; color: var(--muted); }
 .link-x:hover { color: var(--danger); }
 .link-btn { padding: 1px 8px; font-size: 12px; margin-left: 4px; }
+.toolbar button, .seg > button { white-space: nowrap; }

@@ -16,6 +16,7 @@ export const view = {
   assignBreakerId: null,   // breaker the Assign tool puts devices on
   assignVerify: true,      // Assign tool also marks devices verified
   linkSwitchId: null,      // switch the Link tool is currently linking loads to
+  printOpts: { paper: 'letter', off: [], tagMode: 'numbers', dims: false, planScale: 'fit', labelSize: 'small', labelPrefix: true },
   tagMode: 'numbers',      // text beside device symbols: 'numbers' | 'details' | 'both' | 'none'
   panelSel: null,          // Panels view selection: {kind: 'breaker'|'panel'|'slot', id, panelId?, position?}
 };

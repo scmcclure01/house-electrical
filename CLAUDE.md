@@ -8,6 +8,15 @@ with the File System Access API (Chrome/Edge only).
 - `python3 serve.py` from the repo root, then http://localhost:8000 (ES modules and the File System Access
   API don't work from `file://`). It disables caching — with plain `http.server` Chrome keeps stale ES modules.
   `.claude/launch.json` runs the same server for preview.
+- **Print**: all sheets landscape; `@page { size; margin }` injected from the chosen paper. Fixed sheets
+  (plans, schedules) are exactly one page; `.sheet.flow` (circuit table, labels) paginate naturally.
+  `printFloorSVG()` reuses the plan renderer with `printing` set (no grid/dimming/selection, tags always on,
+  camera.scale temporarily = paper px per inch so px()-based sizes come out in paper pixels).
+  Plan scale: 'fit' (default, with scale bar) or largest standard architectural scale.
+- **Verifying print output**: open `http://127.0.0.1:8000/#sample-print` in headless Chrome
+  (`~/Documents/Google Chrome.app/Contents/MacOS/Google Chrome --headless=new --print-to-pdf=out.pdf
+  --virtual-time-budget=8000 --no-pdf-header-footer <url>`), then render pages to PNG with a small Swift
+  PDFKit script (no poppler on this Mac). `#sample`, `#sample-panels`, `#sample-print` are demo/test hooks in main.js.
 - **Cache busting**: GitHub Pages lets browsers cache files ~10 min, which once served new JS with old CSS.
   A pre-commit hook (`.githooks/pre-commit` → `stamp_build.py`) rewrites the `BUILD` block in `index.html`
   on every commit: versioned CSS links plus an import map adding `?v=<build>` to every module under `js/`
@@ -68,7 +77,9 @@ js/tools/index.js   tool registry, pointer/wheel/keyboard routing, Delete/Esc/F 
 js/tools/snap.js    corner → Shift 45° → grid snapping
 js/tools/select.js, wall.js, area.js, opening.js, device.js, assign.js, link.js   individual tools
                     (device.js exports devicePlacement(): wall-face snapping / room-centre snapping)
-js/print/           (Phase 5)
+js/print/index.js   Print view: options, live preview (zoomed sheets), @page size, window.print()
+js/print/sheets.js  sheet builders: floorSheet (plan via printFloorSVG + legend + title block + scale bar),
+                    circuitTableSheet, panelScheduleSheet, labelsSheet; PAPER sizes, MARGIN
 samples/sample-house.json   tests/index.html
 ```
 
@@ -124,9 +135,10 @@ Rules (`validate()`):
 2. Devices with standard plan symbols ✅
 3. Panels view, breakers, circuit assignment, colors, verified styling, unassigned view ✅
 4. Switch → load links, 3-way ✅
-5. Print: floor sheets with legend (Letter/11×17), circuit table, panel door schedules, breaker labels
+5. Print: floor sheets with legend (Letter/11×17), circuit table, panel door schedules, breaker labels ✅
 
 After each phase: update this file and the sample, give the user a browser test script, commit and push.
+All five planned phases are complete; further work is user-requested enhancements.
 
 ## Repo
 GitHub: https://github.com/scmcclure01/house-electrical (public, `main` branch).

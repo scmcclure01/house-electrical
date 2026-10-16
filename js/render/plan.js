@@ -180,17 +180,20 @@ const TAGS_MIN_SCALE = 1.6; // screen px per inch
 let breakerColor = new Map();
 let focusId = null;
 let docRef = null;
+let printing = null; // {tagMode, dims} while building a print sheet: no dimming, tags always shown
 
 // Text next to a symbol, per the Labels setting: device code, details (flags/label/port), both, or none.
 function tagText(d) {
   const code = d.num && docRef ? deviceCode(docRef, d) : '';
   const details = deviceTags(d);
-  const parts = { numbers: [code], details, both: [code, ...details], none: [] }[view.tagMode] ?? [code];
+  const mode = printing ? printing.tagMode : view.tagMode;
+  const parts = { numbers: [code], details, both: [code, ...details], none: [] }[mode] ?? [code];
   return parts.filter(Boolean).join(' · ');
 }
 
 // How a device is emphasised under the current display mode: 'dim', 'halo', 'alert' (unassigned) or ''.
 function emphasis(d) {
+  if (printing) return '';
   const lowV = LOW_VOLTAGE.has(d.type);
   if (view.display === 'unassigned') return lowV || d.breakerId ? 'dim' : 'alert';
   if (!focusId) return '';
@@ -213,8 +216,8 @@ export function deviceMarkup(d, extraCls = '') {
   let out = `<g ${idAttr} class="${cls}"${color ? ` style="--c:${color}"` : ''} transform="translate(${f(c.x)} ${f(c.y)}) scale(${f(s)})">` +
     `${halo}${symbolMarkup(d)}<circle r="${R * 1.5}" class="dev-hit"/></g>`;
   const tag = extraCls ? deviceTags(d).join(' · ') : tagText(d);
-  if (tag && (camera.scale >= TAGS_MIN_SCALE || extraCls || view.selection.includes(d.id))) {
-    const fs = px(10);
+  if (tag && (printing || camera.scale >= TAGS_MIN_SCALE || extraCls || view.selection.includes(d.id))) {
+    const fs = px(printing ? 7.5 : 10);
     const u = d.wallId ? facing(d) : { x: 0, y: 1 };
     const dist = R * s * (d.wallId ? 1.6 : 1.4) + fs * 0.9;
     const p = add(c, mul(u, dist));
@@ -306,24 +309,23 @@ function selectionMarkup(doc, floorId) {
   return out;
 }
 
-export function render() {
-  const doc = getDoc();
-  const v = viewRect();
-  svg.setAttribute('viewBox', `${f(v.x)} ${f(v.y)} ${f(v.w)} ${f(v.h)}`);
-  if (!doc || view.mode !== 'plan') { svg.innerHTML = ''; return; }
-  const fl = view.floorId;
-  const wallsById = new Map(doc.walls.map(w => [w.id, w]));
-  let out = `<defs>
+const DEFS = `<defs>
     <pattern id="stair-hatch" patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(45)">
       <line x1="0" y1="0" x2="0" y2="8" class="hatch-line"/></pattern>
     <pattern id="attic-hatch" patternUnits="userSpaceOnUse" width="16" height="16" patternTransform="rotate(-45)">
       <line x1="0" y1="0" x2="0" y2="16" class="attic-line"/></pattern>
   </defs>`;
-  out += `<g class="layer-grid">${gridMarkup(v, doc.settings.gridIn)}</g>`;
+
+// SVG content for one floor. Screen rendering adds grid, ghost, links, selection and tool overlay;
+// print rendering (printing != null) draws just the plan.
+function floorMarkup(doc, fl, v) {
+  const wallsById = new Map(doc.walls.map(w => [w.id, w]));
   const floorDevices = doc.devices.filter(d => d.floorId === fl);
   breakerColor = new Map(doc.breakers.map(b => [b.id, b.color]));
   docRef = doc;
   focusId = view.tool === 'assign' ? view.assignBreakerId : view.focusBreakerId;
+  let out = DEFS;
+  if (!printing) out += `<g class="layer-grid">${gridMarkup(v, doc.settings.gridIn)}</g>`;
   out += '<g class="layer-areas">';
   // Larger areas first so small rooms drawn inside them stay clickable.
   for (const a of doc.areas.filter(a => a.floorId === fl).sort((p, q) => Math.abs(polygonArea(q.points)) - Math.abs(polygonArea(p.points)))) out += areaMarkup(a, false, floorDevices);
@@ -338,21 +340,53 @@ export function render() {
   for (const d of floorDevices) out += deviceMarkup(d);
   out += '</g>';
   // Ghost of the other floor(s) goes ON TOP as faint outlines; underneath, room fills would hide it.
-  if (view.ghost) {
+  if (view.ghost && !printing) {
     out += '<g class="layer-ghost">';
     for (const a of doc.areas) if (a.floorId !== fl) out += areaMarkup(a, true);
     for (const w of doc.walls) if (w.floorId !== fl) out += wallMarkup(w, true);
     out += '</g>';
   }
-  if (view.showDims) {
+  if (printing ? printing.dims : view.showDims) {
     out += '<g class="layer-dims">';
     for (const w of doc.walls) if (w.floorId === fl) out += dimMarkup(w);
     out += '</g>';
   }
+  if (printing) return out;
   out += `<g class="layer-links">${linkMarkup(doc, fl)}</g>`;
   out += `<g class="layer-selection">${selectionMarkup(doc, fl)}</g>`;
   out += `<g class="layer-overlay">${overlayFn ? overlayFn({ px, f, line, ptsAttr }) : ''}</g>`;
-  svg.innerHTML = out;
+  return out;
+}
+
+export function render() {
+  const doc = getDoc();
+  const v = viewRect();
+  svg.setAttribute('viewBox', `${f(v.x)} ${f(v.y)} ${f(v.w)} ${f(v.h)}`);
+  if (!doc || view.mode !== 'plan') { svg.innerHTML = ''; return; }
+  svg.innerHTML = floorMarkup(doc, view.floorId, v);
+}
+
+// Bounds (inches) of everything drawn on any floor, so every printed floor uses the same frame.
+export function houseBounds(doc) {
+  const pts = [];
+  for (const w of doc.walls) pts.push(w.a, w.b);
+  for (const a of doc.areas) pts.push(...a.points);
+  for (const d of doc.devices) pts.push(d);
+  return pts.length ? bounds(pts) : null;
+}
+
+// A standalone SVG of one floor for printing. rect = world bounds to show; k = paper CSS px per world inch.
+export function printFloorSVG(doc, floorId, rect, k, { tagMode = 'numbers', dims = false } = {}) {
+  const saved = camera.scale;
+  camera.scale = k; // px() / symScale() now produce sizes in paper pixels
+  printing = { tagMode, dims };
+  try {
+    const w = rect.maxX - rect.minX, h = rect.maxY - rect.minY;
+    return `<svg class="print-plan" xmlns="http://www.w3.org/2000/svg" viewBox="${f(rect.minX)} ${f(rect.minY)} ${f(w)} ${f(h)}" width="${f((w * k) / 96)}in" height="${f((h * k) / 96)}in">${floorMarkup(doc, floorId, null)}</svg>`;
+  } finally {
+    camera.scale = saved;
+    printing = null;
+  }
 }
 
 new ResizeObserver(() => render()).observe(svg);

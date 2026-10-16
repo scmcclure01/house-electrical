@@ -10,6 +10,7 @@ import './tools/index.js';
 import './ui/toolrail.js';
 import './ui/plantoolbar.js';
 import './ui/panels.js';
+import './print/index.js';
 
 const $ = sel => document.querySelector(sel);
 
@@ -150,3 +151,7 @@ $('#build-id').textContent = `build ${document.querySelector('meta[name=build]')
 
 refreshReopen();
 renderAll();
+
+// Testing / demo hook: index.html#sample, #sample-panels or #sample-print opens the sample house in that view.
+const demo = location.hash.match(/^#sample(?:-(plan|panels|print))?$/);
+if (demo) commands.sample().then(() => { if (demo[1]) setView({ mode: demo[1] }); });
