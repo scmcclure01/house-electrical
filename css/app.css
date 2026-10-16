@@ -300,3 +300,19 @@ button.primary:hover:not(:disabled) { background: #1d55cf; }
 .code-chip.unverified { border-style: dashed; background: #fff; }
 .toolbar { flex-wrap: nowrap; overflow: hidden; }
 @media (max-width: 1180px) { #plan-toolbar .legend-key { display: none; } }
+
+/* ---- switch links ---- */
+.layer-links { pointer-events: none; }
+.link-line { stroke: #e0560b; stroke-width: 1.6; stroke-dasharray: 6 4; }
+.link-pair { stroke: #e0560b; stroke-width: 2.2; stroke-dasharray: 2 4; stroke-linecap: round; }
+.link-load { fill: rgba(224, 86, 11, .12); stroke: #e0560b; stroke-width: 1.5; }
+.link-active { fill: none; stroke: #e0560b; stroke-width: 2.5; }
+.link-away { fill: #e0560b; font-weight: 700; paint-order: stroke; stroke: #fff; stroke-width: 3px; }
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.link-list { list-style: none; margin: 0 0 10px; padding: 0; border: 1px solid var(--line); border-radius: 6px; }
+.link-list li { display: flex; align-items: baseline; gap: 6px; padding: 5px 8px; border-top: 1px solid var(--line); }
+.link-list li:first-child { border-top: 0; }
+.link-list .meta { flex: 1; font-size: 12px; color: var(--muted); }
+.link-x { border: 0; background: none; padding: 0 3px; color: var(--muted); }
+.link-x:hover { color: var(--danger); }
+.link-btn { padding: 1px 8px; font-size: 12px; margin-left: 4px; }

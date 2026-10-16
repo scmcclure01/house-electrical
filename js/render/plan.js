@@ -6,7 +6,7 @@ import { view } from '../ui/viewstate.js';
 import { add, sub, scale as mul, unit, normal, cross, labelPoint, polygonArea, bounds } from '../geometry.js';
 import { formatLength } from '../units.js';
 import { R, symbolMarkup, deviceCenter, deviceTags, facing } from './symbols.js';
-import { LOW_VOLTAGE, deviceCode } from '../model.js';
+import { LOW_VOLTAGE, deviceCode, groupOf } from '../model.js';
 
 export const svg = document.getElementById('plan');
 
@@ -223,6 +223,44 @@ export function deviceMarkup(d, extraCls = '') {
   return out;
 }
 
+// Switch links: dashed lines from each switch to the loads it controls (and between a 3-way pair),
+// for the switch the Link tool is working on, or for selected switches / selected loads.
+function linkMarkup(doc, fl) {
+  const groups = new Set();
+  const focusIds = view.tool === 'link' ? (view.linkSwitchId ? [view.linkSwitchId] : []) : view.selection;
+  for (const fid of focusIds) {
+    const g = groupOf(doc, fid);
+    if (g) groups.add(g);
+    else if (view.tool !== 'link') for (const x of doc.switchGroups) if (x.loadIds.includes(fid)) groups.add(x);
+  }
+  if (!groups.size && !(view.tool === 'link' && view.linkSwitchId)) return '';
+  const byId = new Map(doc.devices.map(d => [d.id, d]));
+  const s = symScale();
+  const center = d => deviceCenter(d, s);
+  let out = '';
+  for (const g of groups) {
+    const sws = g.switchIds.map(i => byId.get(i)).filter(Boolean);
+    const loads = g.loadIds.map(i => byId.get(i)).filter(Boolean);
+    const here = sws.filter(d => d.floorId === fl), loadsHere = loads.filter(d => d.floorId === fl);
+    for (const sw of here) for (const l of loadsHere) out += line(center(sw), center(l), 'link-line');
+    if (here.length === 2) out += line(center(here[0]), center(here[1]), 'link-pair');
+    for (const l of loadsHere) out += `<circle cx="${f(center(l).x)}" cy="${f(center(l).y)}" r="${f(R * s * 1.9)}" class="link-load"/>`;
+    // Anything linked on another floor gets a note beside the first item drawn here.
+    const away = [...sws, ...loads].filter(d => d.floorId !== fl);
+    const anchor = here[0] ?? loadsHere[0];
+    if (away.length && anchor) {
+      const floors = [...new Set(away.map(d => doc.floors.find(x => x.id === d.floorId)?.name ?? '?'))].join(', ');
+      const c = center(anchor);
+      out += `<text x="${f(c.x + R * s * 2)}" y="${f(c.y - R * s * 2)}" font-size="${f(px(11))}" class="link-away">+${away.length} on ${esc(floors)}</text>`;
+    }
+  }
+  if (view.tool === 'link' && view.linkSwitchId) {
+    const sw = byId.get(view.linkSwitchId);
+    if (sw?.floorId === fl) out += `<circle cx="${f(center(sw).x)}" cy="${f(center(sw).y)}" r="${f(R * s * 2.1)}" class="link-active"/>`;
+  }
+  return out;
+}
+
 function dimMarkup(w) {
   const u = unit(sub(w.b, w.a));
   let n = normal(u);
@@ -311,6 +349,7 @@ export function render() {
     for (const w of doc.walls) if (w.floorId === fl) out += dimMarkup(w);
     out += '</g>';
   }
+  out += `<g class="layer-links">${linkMarkup(doc, fl)}</g>`;
   out += `<g class="layer-selection">${selectionMarkup(doc, fl)}</g>`;
   out += `<g class="layer-overlay">${overlayFn ? overlayFn({ px, f, line, ptsAttr }) : ''}</g>`;
   svg.innerHTML = out;

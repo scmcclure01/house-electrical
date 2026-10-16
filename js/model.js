@@ -235,6 +235,7 @@ export function validate(doc) {
   doc.switchGroups.forEach(g => {
     dup(g, 'switch group');
     g.switchIds.forEach(s => { if (switchSeen.has(s)) errs.push(`Switch ${s} is in more than one group`); switchSeen.add(s); });
+    if (g.switchIds.length > 2) errs.push(`Switch group ${g.id} has more than two switches`);
   });
   return errs;
 }
@@ -351,4 +352,66 @@ export function circuitStats(doc) {
 // Devices that should be on a circuit but aren't (low-voltage drops don't count).
 export function unassignedDevices(doc) {
   return doc.devices.filter(d => !d.breakerId && !LOW_VOLTAGE.has(d.type));
+}
+
+// ---------- switch links ----------
+// A switch group = the switches that control the same loads: 1 switch (single-pole) or 2 (a 3-way pair).
+// Loads can be any line-voltage device except a switch (lights, half-hot outlets, fans, disposals…).
+// A switch is in at most one group; a load may be in several (e.g. a fan with separate fan/light switches).
+
+export const isSwitchable = d => d && d.type !== 'switch' && !LOW_VOLTAGE.has(d.type);
+
+export function groupOf(doc, switchId) {
+  return doc.switchGroups.find(g => g.switchIds.includes(switchId)) ?? null;
+}
+
+// Switch ids controlling a load.
+export function switchesFor(doc, loadId) {
+  return doc.switchGroups.filter(g => g.loadIds.includes(loadId)).flatMap(g => g.switchIds);
+}
+
+// Add or remove a load from a switch's group (creating the group on first use). Returns true if now linked.
+export function toggleLoad(doc, switchId, loadId) {
+  let g = groupOf(doc, switchId);
+  if (!g) { g = { id: id('g'), switchIds: [switchId], loadIds: [] }; doc.switchGroups.push(g); }
+  const i = g.loadIds.indexOf(loadId);
+  if (i >= 0) g.loadIds.splice(i, 1); else g.loadIds.push(loadId);
+  cleanSwitchGroups(doc);
+  return i < 0;
+}
+
+// Make switch b the 3-way partner of switch a: b joins a's group, bringing its own loads along.
+// Returns an error message (e.g. a third switch would make it a 4-way) or null.
+export function pairSwitches(doc, a, b) {
+  let ga = groupOf(doc, a);
+  const gb = groupOf(doc, b);
+  if (ga && ga === gb) return null;
+  if (!ga) { ga = { id: id('g'), switchIds: [a], loadIds: [] }; doc.switchGroups.push(ga); }
+  const incoming = gb ? gb.switchIds : [b];
+  if (ga.switchIds.length + incoming.length > 2) return 'A 3-way has exactly two switches (4-way switching isn\'t supported).';
+  if (gb) {
+    for (const l of gb.loadIds) if (!ga.loadIds.includes(l)) ga.loadIds.push(l);
+    doc.switchGroups = doc.switchGroups.filter(g => g !== gb);
+  }
+  ga.switchIds.push(...incoming);
+  for (const d of doc.devices) if (ga.switchIds.includes(d.id)) d.switchKind = '3way';
+  return null;
+}
+
+// Split a switch out of its 3-way pair; it keeps no loads (the partner keeps them).
+export function unpairSwitch(doc, switchId) {
+  const g = groupOf(doc, switchId);
+  if (!g || g.switchIds.length < 2) return;
+  g.switchIds = g.switchIds.filter(s => s !== switchId);
+  for (const d of doc.devices) if (d.id === switchId || g.switchIds.includes(d.id)) d.switchKind = 'single';
+}
+
+// Drop references that no longer make sense (device deleted, or its type changed) and empty groups.
+export function cleanSwitchGroups(doc) {
+  const byId = new Map(doc.devices.map(d => [d.id, d]));
+  for (const g of doc.switchGroups) {
+    g.switchIds = g.switchIds.filter(s => byId.get(s)?.type === 'switch');
+    g.loadIds = [...new Set(g.loadIds)].filter(l => isSwitchable(byId.get(l)));
+  }
+  doc.switchGroups = doc.switchGroups.filter(g => g.switchIds.length && (g.loadIds.length || g.switchIds.length > 1));
 }

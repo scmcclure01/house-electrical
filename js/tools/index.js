@@ -14,6 +14,7 @@ import { areaTool } from './area.js';
 import { openingTool } from './opening.js';
 import { deviceTool } from './device.js';
 import { assignTool } from './assign.js';
+import { linkTool } from './link.js';
 import { DEVICE_TYPES } from '../model.js';
 
 export const TOOLS = {
@@ -27,6 +28,7 @@ export const TOOLS = {
   opening: openingTool('opening'),
   ...Object.fromEntries(DEVICE_TYPES.map(t => [t, deviceTool(t)])),
   assign: assignTool,
+  link: linkTool,
 };
 
 const current = () => TOOLS[view.tool] ?? selectTool;

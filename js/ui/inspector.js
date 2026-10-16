@@ -5,7 +5,8 @@ import { getDoc, commit, isReadOnly } from '../store.js';
 import { view, setView } from './viewstate.js';
 import { findById, deleteIds, wallLength, areaAt, normalizeDevice, WALL_KINDS, AREA_KINDS, OPENING_KINDS,
   DEVICE_TYPES, DEVICE_NAMES, LIGHT_KINDS, LOW_VOLTAGE, assignableBreakers, breakerTitle, deviceCode, nextDeviceNum,
-  renumberDevices } from '../model.js';
+  renumberDevices, groupOf, switchesFor, toggleLoad, unpairSwitch, cleanSwitchGroups, isSwitchable } from '../model.js';
+import { setTool } from '../tools/index.js';
 import { add, sub, scale, unit, same, polygonArea } from '../geometry.js';
 import { parseLength, formatLength } from '../units.js';
 import { status } from './status.js';
@@ -178,6 +179,34 @@ function circuitFields(doc, d) {
     <div class="check-row"><label title="Confirmed by switching the breaker off and testing"><input type="checkbox" id="ins-verified"${d.verified ? ' checked' : ''}${d.breakerId ? '' : ' disabled'}> Verified by testing</label></div>`;
 }
 
+// ---------- switch links ----------
+function codeItem(doc, x, removeAttr = '') {
+  const name = DEVICE_NAMES[x.type].replace(/^[A-Z](?=[a-z])/, c => c.toLowerCase());
+  const floor = doc.floors.find(f => f.id === x.floorId);
+  const away = floor && x.floorId !== view.floorId ? ` · ${esc(floor.name)}` : '';
+  return `<li><span class="mono">${esc(deviceCode(doc, x))}</span> <span class="meta">${name}${x.label ? ` — ${esc(x.label)}` : ''}${away}</span>
+    ${removeAttr ? `<button class="link-x" ${removeAttr} title="Unlink">✕</button>` : ''}</li>`;
+}
+
+function linkFields(doc, d) {
+  const byId = new Map(doc.devices.map(x => [x.id, x]));
+  if (d.type === 'switch') {
+    const g = groupOf(doc, d.id);
+    const loads = (g?.loadIds ?? []).map(i => byId.get(i)).filter(Boolean);
+    const partner = g?.switchIds.filter(s => s !== d.id).map(i => byId.get(i)).filter(Boolean)[0];
+    return `
+      <h3 class="sub-head">Controls</h3>
+      ${loads.length ? `<ul class="link-list">${loads.map(x => codeItem(doc, x, `data-unlink="${x.id}"`)).join('')}</ul>` : '<p class="meta">Nothing linked yet.</p>'}
+      ${partner ? `<p class="meta">3-way with <span class="mono">${esc(deviceCode(doc, partner))}</span>${partner.label ? ` (${esc(partner.label)})` : ''} <button id="ins-unpair" class="link-btn">Unpair</button></p>` : ''}
+      <button id="ins-link">Link lights &amp; outlets…</button>`;
+  }
+  if (!isSwitchable(d)) return '';
+  const sws = switchesFor(doc, d.id).map(i => byId.get(i)).filter(Boolean);
+  return `
+    <h3 class="sub-head">Controlled by</h3>
+    ${sws.length ? `<ul class="link-list">${sws.map(x => codeItem(doc, x)).join('')}</ul>` : '<p class="meta">No switch (always on, or not linked yet).</p>'}`;
+}
+
 // ---------- device ----------
 const LABEL_HINTS = {
   outlet: 'e.g. Counter left', receptacle240: 'e.g. Dryer', hardwired: 'e.g. Dishwasher, Furnace',
@@ -211,9 +240,16 @@ function renderDevice(d, doc) {
     <label>Notes <textarea id="ins-notes" placeholder="Anything worth remembering — box location, wire color, tested on…">${esc(d.notes)}</textarea></label>
     ${d.wallId ? '' : '<div class="btn-row"><button id="ins-rotate">Rotate 90°</button></div>'}
     ${circuitFields(doc, d)}
+    ${linkFields(doc, d)}
     ${deleteBtn}`;
   const edit = fn => doc2 => fn(doc2.devices.find(x => x.id === d.id));
-  bind('#ins-type', 'Change device type', (doc2, v) => edit(x => { x.type = v; normalizeDevice(x); x.num = nextDeviceNum(doc2, v, x.floorId); })(doc2), { rerender: true });
+  bind('#ins-type', 'Change device type', (doc2, v) => { edit(x => { x.type = v; normalizeDevice(x); x.num = nextDeviceNum(doc2, v, x.floorId); })(doc2); cleanSwitchGroups(doc2); }, { rerender: true });
+  el.querySelectorAll('[data-unlink]').forEach(b => {
+    b.disabled = isReadOnly();
+    b.addEventListener('click', () => commit('Unlink', doc2 => { toggleLoad(doc2, d.id, b.dataset.unlink); }));
+  });
+  button('#ins-unpair', () => commit('Unpair 3-way', doc2 => unpairSwitch(doc2, d.id)));
+  button('#ins-link', () => { setView({ linkSwitchId: d.id }); setTool('link'); });
   bind('#ins-num', 'Renumber device', (doc2, v, input) => {
     const num = v.trim().toUpperCase();
     const clash = doc2.devices.find(x => x.num === num && x.id !== d.id);

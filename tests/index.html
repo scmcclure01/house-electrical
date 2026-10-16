@@ -18,7 +18,8 @@
     import * as store from '../js/store.js';
     import { projectOnSegment, pointInPolygon, polygonArea, labelPoint, snapAngle, snapToGrid } from '../js/geometry.js';
     import { deleteIds, findById, areaAt, normalizeDevice, isWallMounted, slotProblem, breakerName, circuitStats, unassignedDevices, nextColor, assignableBreakers, PALETTE,
-      nextDeviceNum, deviceCode, renumberDevices, breakerCode, nextPanelCode, parseNum } from '../js/model.js';
+      nextDeviceNum, deviceCode, renumberDevices, breakerCode, nextPanelCode, parseNum,
+      groupOf, switchesFor, toggleLoad, pairSwitches, unpairSwitch, cleanSwitchGroups } from '../js/model.js';
 
     const out = document.getElementById('out');
     let pass = 0, fail = 0;
@@ -207,6 +208,53 @@
       d.devices.push({ id: 'x', type: 'outlet', floorId: 'F1', num: 'R101', breakerId: 'b1' });
       deleteIds(d, ['p_sub']);
       eq([d.panels.length, d.breakers.length, d.devices[0].breakerId], [1, 0, null]);
+    });
+
+    // switch links
+    function switchHouse() {
+      const d = newHouse();
+      for (const [id, type] of [['s1', 'switch'], ['s2', 'switch'], ['s3', 'switch'], ['l1', 'light'], ['l2', 'light'], ['r1', 'outlet'], ['e1', 'ethernet']])
+        d.devices.push(normalizeDevice({ id, type, floorId: 'F1', x: 0, y: 0, num: id.toUpperCase() }));
+      return d;
+    }
+    test('toggleLoad links then unlinks', () => {
+      const d = switchHouse();
+      eq(toggleLoad(d, 's1', 'l1'), true); toggleLoad(d, 's1', 'r1');
+      eq([groupOf(d, 's1').loadIds, switchesFor(d, 'r1')], [['l1', 'r1'], ['s1']]);
+      eq(toggleLoad(d, 's1', 'l1'), false); toggleLoad(d, 's1', 'r1');
+      eq(d.switchGroups.length, 0);
+    });
+    test('pairing makes a 3-way and merges loads', () => {
+      const d = switchHouse();
+      toggleLoad(d, 's1', 'l1'); toggleLoad(d, 's2', 'l2');
+      eq(pairSwitches(d, 's1', 's2'), null);
+      const g = groupOf(d, 's2');
+      eq([d.switchGroups.length, g.switchIds, g.loadIds, d.devices.find(x => x.id === 's1').switchKind], [1, ['s1', 's2'], ['l1', 'l2'], '3way']);
+    });
+    test('no third switch (4-way) in a group', () => {
+      const d = switchHouse();
+      pairSwitches(d, 's1', 's2');
+      eq(/exactly two/.test(pairSwitches(d, 's1', 's3')), true);
+    });
+    test('unpair leaves loads with the partner', () => {
+      const d = switchHouse();
+      toggleLoad(d, 's1', 'l1'); pairSwitches(d, 's1', 's2'); unpairSwitch(d, 's2');
+      eq([groupOf(d, 's1').switchIds, groupOf(d, 's2'), d.devices.find(x => x.id === 's2').switchKind], [['s1'], null, 'single']);
+    });
+    test('cleanSwitchGroups drops non-switchable loads and retyped switches', () => {
+      const d = switchHouse();
+      d.switchGroups.push({ id: 'g', switchIds: ['s1'], loadIds: ['l1', 'e1', 's2', 'gone'] });
+      cleanSwitchGroups(d);
+      eq(d.switchGroups[0].loadIds, ['l1']);
+      d.devices.find(x => x.id === 's1').type = 'outlet';
+      cleanSwitchGroups(d);
+      eq(d.switchGroups.length, 0);
+    });
+    test('deleting a switch removes its group', () => {
+      const d = switchHouse();
+      toggleLoad(d, 's1', 'l1');
+      deleteIds(d, ['s1']);
+      eq(d.switchGroups.length, 0);
     });
 
     // gestures

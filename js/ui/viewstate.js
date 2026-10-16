@@ -15,6 +15,7 @@ export const view = {
   focusBreakerId: null,    // show only this circuit (others dimmed)
   assignBreakerId: null,   // breaker the Assign tool puts devices on
   assignVerify: true,      // Assign tool also marks devices verified
+  linkSwitchId: null,      // switch the Link tool is currently linking loads to
   tagMode: 'numbers',      // text beside device symbols: 'numbers' | 'details' | 'both' | 'none'
   panelSel: null,          // Panels view selection: {kind: 'breaker'|'panel'|'slot', id, panelId?, position?}
 };

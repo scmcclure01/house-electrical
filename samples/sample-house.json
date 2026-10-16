@@ -2189,5 +2189,116 @@
       "model": "Square D HOM115"
     }
   ],
-  "switchGroups": []
+  "switchGroups": [
+    {
+      "id": "g_s01",
+      "switchIds": [
+        "d_s05"
+      ],
+      "loadIds": [
+        "d_s07",
+        "d_s03"
+      ]
+    },
+    {
+      "id": "g_s02",
+      "switchIds": [
+        "d_s16"
+      ],
+      "loadIds": [
+        "d_s17",
+        "d_s18",
+        "d_s19",
+        "d_s20",
+        "d_s21"
+      ]
+    },
+    {
+      "id": "g_s03",
+      "switchIds": [
+        "d_s26"
+      ],
+      "loadIds": [
+        "d_s23"
+      ]
+    },
+    {
+      "id": "g_s04",
+      "switchIds": [
+        "d_s29"
+      ],
+      "loadIds": [
+        "d_s28",
+        "d_s30"
+      ]
+    },
+    {
+      "id": "g_s05",
+      "switchIds": [
+        "d_s31",
+        "d_s51"
+      ],
+      "loadIds": [
+        "d_s32",
+        "d_s52"
+      ]
+    },
+    {
+      "id": "g_s06",
+      "switchIds": [
+        "d_s40"
+      ],
+      "loadIds": [
+        "d_s38",
+        "d_s39"
+      ]
+    },
+    {
+      "id": "g_s07",
+      "switchIds": [
+        "d_s44"
+      ],
+      "loadIds": [
+        "d_s45"
+      ]
+    },
+    {
+      "id": "g_s08",
+      "switchIds": [
+        "d_s47"
+      ],
+      "loadIds": [
+        "d_s49",
+        "d_s50"
+      ]
+    },
+    {
+      "id": "g_s09",
+      "switchIds": [
+        "d_s58"
+      ],
+      "loadIds": [
+        "d_s59"
+      ]
+    },
+    {
+      "id": "g_s10",
+      "switchIds": [
+        "d_s62"
+      ],
+      "loadIds": [
+        "d_s65",
+        "d_s66"
+      ]
+    },
+    {
+      "id": "g_s11",
+      "switchIds": [
+        "d_s67"
+      ],
+      "loadIds": [
+        "d_s68"
+      ]
+    }
+  ]
 }
