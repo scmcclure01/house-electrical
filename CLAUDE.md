@@ -47,6 +47,8 @@ with the File System Access API (Chrome/Edge only).
   previews. Full SVG re-render on every change is intentional (small documents, simple code).
 - Shared wall corners: moving a wall end also moves other wall ends at the same point (same floor).
 - Opening `offsetIn` is measured from wall end `a`; the UI marks that end with an "A".
+- `docs/quick-start.html` is the printable user guide (4 Letter pages, page 4 = shortcut card). Update it when
+  shortcuts or workflow change, and regenerate the PDF with headless Chrome (see Verifying print output).
 - Keyboard shortcuts: V select · W/I ext/int wall · A area · T stair · D/N/O door/window/opening ·
   R outlet · 2 240V · H hardwired · S switch · L light · C cable · E ethernet · K link switches · B assign circuit ·
   F fit · Esc · Delete.

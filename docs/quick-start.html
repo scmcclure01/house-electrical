@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>House Electrical — Quick Start Guide</title>
+<style>
+  :root { --ink: #1d1f21; --muted: #5f6368; --line: #d6d8db; --accent: #2463eb; --soft: #eef3ff; --dark: #1f2937; }
+  @page { size: letter; margin: 0.55in 0.6in 0.6in; }
+  * { box-sizing: border-box; }
+  html { background: #e5e7eb; }
+  body { margin: 0; font: 10pt/1.42 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: var(--ink);
+    -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .page { width: 8.5in; min-height: 11in; margin: 24px auto; padding: 0.55in 0.6in 0.6in; background: #fff; box-shadow: 0 3px 14px rgba(0,0,0,.15); position: relative; }
+  @media print {
+    html { background: none; }
+    .page { width: auto; min-height: 0; margin: 0; padding: 0; box-shadow: none; break-after: page; }
+    .page:last-child { break-after: auto; }
+  }
+  .running { display: flex; justify-content: space-between; font-size: 8pt; color: var(--muted); border-bottom: 1px solid var(--line); padding-bottom: 4px; margin-bottom: 18px; }
+  h1 { font-size: 26pt; line-height: 1.1; margin: 0 0 4px; letter-spacing: -.01em; }
+  .sub { color: var(--muted); font-size: 11pt; margin: 0 0 18px; }
+  h2 { font-size: 15pt; margin: 0 0 8px; padding-bottom: 4px; border-bottom: 2px solid var(--ink); }
+  h3 { font-size: 10.5pt; margin: 16px 0 6px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+  p { margin: 0 0 8px; }
+  a { color: var(--accent); text-decoration: none; }
+  ol, ul { margin: 0 0 8px; padding-left: 20px; }
+  li { margin: 0 0 5px; }
+  ol.steps { counter-reset: s; list-style: none; padding: 0; }
+  ol.steps > li { counter-increment: s; position: relative; padding-left: 34px; margin-bottom: 10px; break-inside: avoid; }
+  ol.steps > li::before { content: counter(s); position: absolute; left: 0; top: 0; width: 22px; height: 22px; border-radius: 50%;
+    background: var(--dark); color: #fff; font-weight: 700; font-size: 9.5pt; display: flex; align-items: center; justify-content: center; }
+  ol.steps ul { margin-top: 4px; }
+  kbd { display: inline-block; min-width: 1.6em; padding: 0 5px; border: 1px solid #b9bdc3; border-bottom-width: 2px; border-radius: 4px;
+    background: #f7f8f9; font: 600 8.5pt/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; text-align: center; white-space: nowrap; }
+  code { font: 8.5pt ui-monospace, SFMono-Regular, Menlo, monospace; background: #f1f3f4; padding: 0 4px; border-radius: 3px; white-space: nowrap; }
+  table { width: 100%; border-collapse: collapse; margin: 0 0 10px; break-inside: avoid; }
+  th { text-align: left; font-size: 8.5pt; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); border-bottom: 1.5px solid var(--ink); padding: 3px 6px; }
+  td { border-bottom: 1px solid var(--line); padding: 4px 6px; vertical-align: top; }
+  td.k { white-space: nowrap; width: 1%; }
+  .callout { background: var(--soft); border-left: 4px solid var(--accent); padding: 8px 12px; margin: 10px 0; break-inside: avoid; }
+  .code-big { font: 700 20pt ui-monospace, Menlo, monospace; letter-spacing: .02em; text-align: center; margin: 6px 0 2px; }
+  .code-big span { padding: 0 2px; border-bottom: 3px solid; }
+  .code-legend { display: flex; justify-content: center; gap: 18px; font-size: 8.5pt; color: var(--muted); margin-bottom: 10px; }
+  .letters { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin: 6px 0 10px; }
+  .letters div { border: 1px solid var(--line); border-radius: 6px; text-align: center; padding: 5px 2px; font-size: 8.5pt; color: var(--muted); }
+  .letters b { display: block; font: 700 13pt ui-monospace, Menlo, monospace; color: var(--ink); }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0 22px; }
+  .card h3:first-child { margin-top: 0; }
+  .card table td { padding: 3px 6px; }
+  .card table { table-layout: fixed; }
+  .card .cols > div:first-child td.k { width: 1.1in; }
+  .card .cols > div:last-child td.k { width: 1.45in; white-space: normal; }
+  .note { font-size: 8.5pt; color: var(--muted); }
+  .c1 { color: #b42318; } .c2 { color: #2463eb; } .c3 { color: #0f7a3d; } .c4 { color: #8a5a00; } .c5 { color: #6d28d9; }
+</style>
+</head>
+<body>
+
+<!-- ============ Page 1 ============ -->
+<section class="page">
+  <div class="running"><span>House Electrical</span><span>Quick Start Guide</span></div>
+  <h1>House Electrical</h1>
+  <p class="sub">Quick Start Guide · map your home's circuits on a floor plan</p>
+
+  <h2>Before you start</h2>
+  <p>Open <a href="https://scmcclure01.github.io/house-electrical/">scmcclure01.github.io/house-electrical</a> in <b>Chrome or Edge</b>. Firefox and Safari can't save back into your file.</p>
+  <ol>
+    <li><b>File → Open…</b> and pick your house file. Yours is <code>Dev House.json</code> in Google Drive › My Drive › Claude › Personal › House Sketch and Electrical Panel. Next time, use <b>File → Reopen</b>.</li>
+    <li>Click <b>Save changes</b> the first time Chrome asks to edit the file. After that, <kbd>⌘S</kbd> saves in place with no dialog.</li>
+    <li>A blue <b>●</b> beside the file name means unsaved changes. Chrome warns you before closing with unsaved work.</li>
+    <li>To experiment safely, use <b>File → Load sample house</b>. It isn't linked to your file.</li>
+  </ol>
+
+  <h3>Screen layout</h3>
+  <table>
+    <tr><th>Area</th><th>What's there</th></tr>
+    <tr><td class="k"><b>Top bar</b> (dark)</td><td>File menu · file name · <b>Plan / Panels / Print</b> views · Undo / Redo</td></tr>
+    <tr><td class="k"><b>Toolbar</b> (second row)</td><td>Plan: Floor · Ghost · Show (Circuits / Unassigned) · Labels · Dimensions · zoom<br>Panels: + Add panel &nbsp;·&nbsp; Print: paper size + Print button</td></tr>
+    <tr><td class="k"><b>Left rail</b></td><td>Drawing, device, Link and Assign tools. Hover a button for its name and key.</td></tr>
+    <tr><td class="k"><b>Tool options strip</b></td><td>Across the top of the drawing when a tool has options: GFCI/AFCI, switch or light type, breaker picker.</td></tr>
+    <tr><td class="k"><b>Right panel</b></td><td>Properties of whatever is selected. With nothing selected: house name, notes, <i>Renumber all devices</i>.</td></tr>
+    <tr><td class="k"><b>Status bar</b></td><td>Hint for the current tool (left) · cursor position and build number (right)</td></tr>
+  </table>
+
+  <div class="callout">After an app update, check the <b>build number</b> at the bottom right. If it's older than expected, reload the page.</div>
+
+  <h3>Mouse and trackpad</h3>
+  <table>
+    <tr><th>Action</th><th>Mouse</th><th>Trackpad</th></tr>
+    <tr><td><b>Zoom</b></td><td>Scroll wheel</td><td>Pinch</td></tr>
+    <tr><td><b>Pan</b></td><td>Middle-button drag, or <kbd>Space</kbd> + drag</td><td>Two-finger scroll, or <kbd>Space</kbd> + drag</td></tr>
+    <tr><td><b>Select / move</b></td><td colspan="2">Click an item · drag it to move · drag on empty space to box-select</td></tr>
+    <tr><td><b>Reshape</b></td><td colspan="2">Drag a corner handle. Walls joined at that corner follow.</td></tr>
+  </table>
+</section>
+
+<!-- ============ Page 2 ============ -->
+<section class="page">
+  <div class="running"><span>House Electrical</span><span>Quick Start Guide</span></div>
+  <h2>Workflow</h2>
+  <p>Work in this order: draw, place devices, set up panels, map circuits, link switches, print. Save with <kbd>⌘S</kbd> as you go.</p>
+  <ol class="steps">
+    <li><b>Draw the first floor</b> (Plan view, First Floor).
+      <ul>
+        <li><kbd>W</kbd>, click a corner, point the mouse along the wall, type the tape-measure length (<code>12'6</code>, <code>12 6</code> or <code>150</code>) and press <kbd>Return</kbd>. Repeat for each wall; the loop closes when you get back to the start.</li>
+        <li><kbd>I</kbd> for interior walls. Click existing corners; they snap.</li>
+        <li><kbd>A</kbd> and click each room's corners, then the first corner again. Type the room name. Change <i>Area type</i> in the strip for garage, attic or exterior.</li>
+        <li><kbd>T</kbd> outlines the stair opening. <kbd>D</kbd> <kbd>N</kbd> <kbd>O</kbd> add a door, window or opening; set width, distance from wall end <b>A</b>, hinge and swing on the right.</li>
+      </ul></li>
+    <li><b>Draw the second floor.</b> Click <b>Second Floor</b>, tick <b>Ghost</b>, and trace over the blue outline of the first floor so walls and stairs line up.</li>
+    <li><b>Place devices.</b> Press a device key (page 4) and click near a wall; wall devices snap to it facing into the room. Ceiling lights snap to the room's center. Set GFCI/AFCI, switch type or light type in the strip first, or later on the right.</li>
+    <li><b>Number devices.</b> When the plan is complete, click empty space, then <b>Renumber all devices…</b> on the right so numbers run room by room.</li>
+    <li><b>Set up panels</b> (Panels view).
+      <ul>
+        <li>Click a panel's dark header: name, code, spaces, brand, model, ratings, location.</li>
+        <li><b>+ Add panel</b> adds a subpanel; set <b>Fed from</b> to its 2-pole feeder breaker.</li>
+        <li>Click a <b>+</b> slot to add a breaker; type its label, set amps, poles, type and model.</li>
+      </ul></li>
+    <li><b>Map circuits.</b> Select a breaker → <b>Assign devices on the plan…</b> (or <kbd>B</kbd> on the plan and pick the breaker top-left). Switch that breaker off, walk the house, and click every device that went dead. With <i>Mark verified</i> ticked, each click also marks it verified.
+      <ul><li><b>Show → Unassigned</b> highlights what's still not on a circuit.</li></ul></li>
+    <li><b>Link switches.</b> <kbd>K</kbd>, click a switch, then every light or outlet it controls. <kbd>Shift</kbd>-click a second switch to make a 3-way pair; stairs work across floors.</li>
+    <li><b>Print.</b> Print view → Letter or 11×17 → untick sheets you don't need → <b>Print / Save as PDF…</b>. In Chrome's dialog choose <i>Save as PDF</i> and tick <i>Background graphics</i> for colors.</li>
+  </ol>
+</section>
+
+<!-- ============ Page 3 ============ -->
+<section class="page">
+  <div class="running"><span>House Electrical</span><span>Quick Start Guide</span></div>
+  <h2>Device numbers</h2>
+  <p>Every device has a permanent number. Once it's on a breaker, its full code adds the panel and breaker.</p>
+  <div class="code-big"><span class="c1">M</span><span class="c2">7</span>-<span class="c3">R</span><span class="c4">1</span><span class="c5">03</span></div>
+  <div class="code-legend"><span class="c1">■ panel code</span><span class="c2">■ breaker slot</span><span class="c3">■ device type</span><span class="c4">■ floor</span><span class="c5">■ sequence</span></div>
+  <p style="text-align:center">= Main panel, breaker 7 · outlet · floor 1 · #03</p>
+
+  <h3>Type letters</h3>
+  <div class="letters">
+    <div><b>R</b>outlet</div><div><b>V</b>240V</div><div><b>E</b>hardwired</div><div><b>S</b>switch</div><div><b>L</b>light / fan</div><div><b>TV</b>cable</div><div><b>D</b>data</div>
+  </div>
+  <ul>
+    <li>Panel codes are 1–3 letters set in each panel's header: <b>M</b> Main, <b>S</b> Sub, <b>S2</b> a second sub.</li>
+    <li>2-pole breakers use their first slot (Range on 3/5 → <b>M3</b>).</li>
+    <li>A device not yet on a breaker shows just its number (<b>R103</b>). Moving it to another circuit changes only the breaker part.</li>
+    <li>Codes appear on the plan (toolbar <b>Labels</b>), on the right panel, in each breaker's device list, and in the printed circuit table.</li>
+  </ul>
+
+  <h2 style="margin-top:22px">Tips</h2>
+  <ul>
+    <li>Device numbers and labels show on the plan only when zoomed in; zoom out for a clean view.</li>
+    <li><b>Solid</b> symbols are verified circuits; <b>dashed</b> ones aren't tested yet. Changing a device's circuit clears its verified flag.</li>
+    <li>Select a switch to see dashed lines to everything it controls; select a light to see its switches.</li>
+    <li>Use 11×17 paper for floor plans when device codes crowd on Letter.</li>
+  </ul>
+
+  <h2 style="margin-top:22px">If something looks wrong</h2>
+  <table>
+    <tr><th>Problem</th><th>Fix</th></tr>
+    <tr><td>A promised fix isn't there</td><td>Reload, then check the build number at the bottom right.</td></tr>
+    <tr><td>Open and Save are greyed out</td><td>You're not in Chrome or Edge.</td></tr>
+    <tr><td>Shortcut keys do nothing</td><td>A right-panel field has the cursor; press <kbd>Return</kbd> or click the plan.</td></tr>
+    <tr><td>Printed colors are missing</td><td>Tick <i>Background graphics</i> in Chrome's print dialog.</td></tr>
+  </table>
+</section>
+
+<!-- ============ Page 4: reference card ============ -->
+<section class="page card">
+  <div class="running"><span>House Electrical</span><span>Keyboard shortcuts</span></div>
+  <h2>Keyboard shortcuts</h2>
+  <p class="note">Letter keys work on the Plan view whenever you're not typing in a field. On Windows, use Ctrl where this says ⌘.</p>
+  <div class="cols">
+    <div>
+      <h3>Drawing tools</h3>
+      <table>
+        <tr><td class="k"><kbd>V</kbd></td><td>Select</td></tr>
+        <tr><td class="k"><kbd>W</kbd></td><td>Exterior wall</td></tr>
+        <tr><td class="k"><kbd>I</kbd></td><td>Interior wall</td></tr>
+        <tr><td class="k"><kbd>A</kbd></td><td>Area: room, garage, attic, exterior</td></tr>
+        <tr><td class="k"><kbd>T</kbd></td><td>Stair opening</td></tr>
+        <tr><td class="k"><kbd>D</kbd></td><td>Door</td></tr>
+        <tr><td class="k"><kbd>N</kbd></td><td>Window</td></tr>
+        <tr><td class="k"><kbd>O</kbd></td><td>Opening</td></tr>
+      </table>
+      <h3>Device &amp; circuit tools</h3>
+      <table>
+        <tr><td class="k"><kbd>R</kbd></td><td>Outlet</td></tr>
+        <tr><td class="k"><kbd>2</kbd></td><td>240V receptacle</td></tr>
+        <tr><td class="k"><kbd>H</kbd></td><td>Hardwired equipment</td></tr>
+        <tr><td class="k"><kbd>S</kbd></td><td>Switch</td></tr>
+        <tr><td class="k"><kbd>L</kbd></td><td>Light</td></tr>
+        <tr><td class="k"><kbd>C</kbd></td><td>Cable TV drop</td></tr>
+        <tr><td class="k"><kbd>E</kbd></td><td>Ethernet drop</td></tr>
+        <tr><td class="k"><kbd>K</kbd></td><td>Link switches</td></tr>
+        <tr><td class="k"><kbd>B</kbd></td><td>Assign circuit</td></tr>
+      </table>
+      <h3>View</h3>
+      <table>
+        <tr><td class="k"><kbd>F</kbd></td><td>Fit house to the window</td></tr>
+        <tr><td class="k"><kbd>+</kbd> <kbd>=</kbd></td><td>Zoom in</td></tr>
+        <tr><td class="k"><kbd>−</kbd></td><td>Zoom out</td></tr>
+        <tr><td class="k"><kbd>Space</kbd> + drag</td><td>Pan</td></tr>
+      </table>
+    </div>
+    <div>
+      <h3>While drawing</h3>
+      <table>
+        <tr><td class="k"><code>12'6</code> <kbd>Return</kbd></td><td>Wall of exactly that length toward the mouse (nearest 45°). Also <code>12 6</code> or <code>150</code>.</td></tr>
+        <tr><td class="k"><kbd>Shift</kbd> hold</td><td>Lock walls and area edges to 0° / 45° / 90°</td></tr>
+        <tr><td class="k"><kbd>Return</kbd></td><td>Close an area · end a wall chain (nothing typed)</td></tr>
+        <tr><td class="k"><kbd>Backspace</kbd></td><td>Erase a typed character · remove the last area corner</td></tr>
+        <tr><td class="k"><kbd>Esc</kbd></td><td>Clear typed length · end wall chain · cancel area</td></tr>
+        <tr><td class="k">Double-click</td><td>End a wall chain</td></tr>
+      </table>
+      <h3>Editing</h3>
+      <table>
+        <tr><td class="k"><kbd>Shift</kbd>-click</td><td>Add to / remove from the selection</td></tr>
+        <tr><td class="k"><kbd>←</kbd><kbd>↑</kbd><kbd>→</kbd><kbd>↓</kbd></td><td>Nudge 6" (<kbd>Shift</kbd>: 1")</td></tr>
+        <tr><td class="k"><kbd>Delete</kbd></td><td>Delete selection (also <kbd>Backspace</kbd>)</td></tr>
+        <tr><td class="k"><kbd>Esc</kbd></td><td>Clear selection, then back to Select</td></tr>
+        <tr><td class="k"><kbd>Shift</kbd>-click switch</td><td>Link tool: pair as a 3-way</td></tr>
+        <tr><td class="k"><kbd>Return</kbd> in a field</td><td>Save that field</td></tr>
+      </table>
+      <h3>File &amp; history</h3>
+      <table>
+        <tr><td class="k"><kbd>⌘S</kbd></td><td>Save</td></tr>
+        <tr><td class="k"><kbd>⇧⌘S</kbd></td><td>Save as…</td></tr>
+        <tr><td class="k"><kbd>⌘O</kbd></td><td>Open…</td></tr>
+        <tr><td class="k"><kbd>⌘Z</kbd></td><td>Undo</td></tr>
+        <tr><td class="k"><kbd>⇧⌘Z</kbd> <kbd>⌘Y</kbd></td><td>Redo</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

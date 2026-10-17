@@ -27,6 +27,9 @@ anywhere — the app runs entirely in your browser. Try **File → Load sample h
 
 Save often with ⌘S. Undo/redo with ⌘Z / ⇧⌘Z.
 
+**Quick start guide** with every keyboard shortcut: [docs/quick-start.html](https://scmcclure01.github.io/house-electrical/docs/quick-start.html)
+(open it and print / Save as PDF; 4 Letter pages, the last is a one-page shortcut card).
+
 ## Develop
 ```bash
 python3 serve.py
